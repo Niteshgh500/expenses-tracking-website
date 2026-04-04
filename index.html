@@ -240,6 +240,23 @@ button:disabled{opacity:.4;cursor:not-allowed}
 .binp button{background:var(--b);color:var(--w);border:none;padding:7px 13px;cursor:pointer;font-family:var(--mono);font-size:.64rem;font-weight:700;letter-spacing:1px;flex-shrink:0}
 .binp button:hover{opacity:.8}
 
+/* ── ONBOARDING EMPTY STATES ── */
+.ob{background:var(--w);border:2px solid var(--b);padding:32px 28px;box-shadow:var(--sh);max-width:680px;margin:0 auto}
+.ob-icon{font-size:3rem;margin-bottom:12px;display:block;text-align:center}
+.ob-title{font-family:var(--display);font-size:1.6rem;letter-spacing:1px;text-align:center;margin-bottom:8px}
+.ob-desc{font-size:.88rem;color:var(--g5);text-align:center;line-height:1.6;margin-bottom:22px;max-width:480px;margin-left:auto;margin-right:auto}
+.ob-steps{display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
+.ob-step{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:var(--g1);border:1px solid var(--g3)}
+.ob-step-num{width:26px;height:26px;background:var(--b);color:var(--w);font-family:var(--mono);font-size:.68rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.ob-step-txt{flex:1}
+.ob-step-title{font-weight:700;font-size:.85rem;margin-bottom:2px}
+.ob-step-desc{font-size:.78rem;color:var(--g5);line-height:1.5}
+.ob-cta{text-align:center}
+.ob-features{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:22px}
+.ob-feat{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--g3);font-size:.78rem}
+.ob-feat-ic{font-size:1rem;flex-shrink:0}
+@media(max-width:600px){.ob-features{grid-template-columns:1fr}.ob{padding:22px 16px}}
+
 /* ── RESPONSIVE ── */
 @media(max-width:780px){
   #sidebar{transform:translateX(-100%)}#sidebar.open{transform:translateX(0)}
@@ -280,7 +297,7 @@ button:disabled{opacity:.4;cursor:not-allowed}
     <label>Currency</label>
     <select id="cursel" onchange="setCur(this.value)">
       <option value="$">$ USD</option><option value="€">€ EUR</option><option value="£">£ GBP</option>
-      <option value="¥">¥ JPY</option><option value="₹">₹ INR</option><option value="₩">₩ KRW</option>
+      <option value="¥">¥ JPY</option><option value="₹" selected>₹ INR</option><option value="₩">₩ KRW</option>
       <option value="A$">A$ AUD</option><option value="C$">C$ CAD</option>
     </select>
   </div>
@@ -444,8 +461,8 @@ button:disabled{opacity:.4;cursor:not-allowed}
     </div>
     <input type="file" id="impf" accept=".csv,.json" style="display:none" onchange="importFile(this)">
   </div>
-</div>
 
+</div><!-- end #main -->
 <!-- ══ MODAL: ADD/EDIT ══ -->
 <div class="ov" id="m-add">
   <div class="modal">
@@ -555,11 +572,13 @@ button:disabled{opacity:.4;cursor:not-allowed}
   <div class="bmsgs" id="bmsgs"></div>
   <div class="bqrow" id="bqrow">
     <div class="bq" onclick="askBot('What is my balance this month?')">Balance?</div>
-    <div class="bq" onclick="askBot('Where am I spending the most?')">Top Spending?</div>
-    <div class="bq" onclick="askBot('How are my budgets?')">Budgets?</div>
-    <div class="bq" onclick="askBot('Show my savings goals')">Goals?</div>
-    <div class="bq" onclick="askBot('What are my recurring expenses?')">Recurring?</div>
-    <div class="bq" onclick="askBot('Give me a money saving tip')">Tip 💡</div>
+    <div class="bq" onclick="askBot('Tell me about Goals')">🏆 Goals</div>
+    <div class="bq" onclick="askBot('Explain the Budget page')">🎯 Budget</div>
+    <div class="bq" onclick="askBot('What is Recurring?')">🔁 Recurring</div>
+    <div class="bq" onclick="askBot('How does Reports work?')">📈 Reports</div>
+    <div class="bq" onclick="askBot('Where am I spending the most?')">Top Spend?</div>
+    <div class="bq" onclick="askBot('Show my savings goals')">My Goals?</div>
+    <div class="bq" onclick="askBot('Give me a money saving tip')">💡 Tip</div>
   </div>
   <div class="binp">
     <input type="text" id="binput" placeholder="Ask about your finances..." onkeydown="if(event.key==='Enter')sendBot()">
@@ -603,7 +622,7 @@ const THEMES = ['','t-dark','t-cream','t-navy','t-forest','t-rose','t-slate'];
 let DB = {
   transactions:[],budgets:{},goals:[],recurring:[],
   categories:JSON.parse(JSON.stringify(DEF_EXP_CATS)),
-  currency:'$',prefs:{alerts:true,decimals:true,compact:false},
+  currency:'₹',prefs:{alerts:true,decimals:true,compact:false},
   txFt:'all',rpP:'month',theme:'',
 };
 
@@ -733,7 +752,16 @@ function renderDash(){
   G('d-expt').textContent=mx.filter(t=>t.type==='expense').length+' transactions';
   G('d-nets').textContent=net>=0?'Positive ▲':'Deficit ▼';
   const rec=DB.transactions.slice(0,6);
-  G('d-rec').innerHTML=rec.length?rec.map(txRow).join(''):'<div class="emp"><div class="ei">◫</div><p>No transactions yet</p></div>';
+  if(!rec.length){
+    G('d-rec').innerHTML=`<div style="text-align:center;padding:20px 0">
+      <div style="font-size:2rem;margin-bottom:8px">💸</div>
+      <div style="font-weight:700;font-size:.9rem;margin-bottom:4px">No transactions yet</div>
+      <div style="font-size:.78rem;color:var(--g5);margin-bottom:14px">Start by logging your first income or expense</div>
+      <button class="btn prim sm" onclick="openAdd(null)">＋ Add First Transaction</button>
+    </div>`;
+  } else {
+    G('d-rec').innerHTML=rec.map(txRow).join('');
+  }
   drawCatCh(mx);drawTrendCh();renderTop(mx);
 }
 
@@ -786,7 +814,21 @@ function renderTx(){
     if(srch&&!t.description.toLowerCase().includes(srch)&&!catOf(t.category).name.toLowerCase().includes(srch)&&!(t.notes||'').toLowerCase().includes(srch))return false;
     return true;
   });
-  G('txlist').innerHTML=list.length?list.map(txRow).join(''):'<div class="emp" style="padding:36px 0"><div class="ei">◫</div><p>No transactions found</p></div>';
+  const emptyTx=`<div style="padding:32px 0">
+    <div class="ob" style="border:none;box-shadow:none;background:transparent">
+      <span class="ob-icon">💳</span>
+      <div class="ob-title">Transactions</div>
+      <div class="ob-desc">Track every rupee you earn and spend. Log expenses, income, and tag them for easy filtering later.</div>
+      <div class="ob-steps">
+        <div class="ob-step"><div class="ob-step-num">1</div><div class="ob-step-txt"><div class="ob-step-title">Click ＋ Add</div><div class="ob-step-desc">Hit the black button at the top right to open the transaction form.</div></div></div>
+        <div class="ob-step"><div class="ob-step-num">2</div><div class="ob-step-txt"><div class="ob-step-title">Choose Expense or Income</div><div class="ob-step-desc">Switch between tabs — each has its own set of categories like Salary, Freelance for income, or Food, Transport for expenses.</div></div></div>
+        <div class="ob-step"><div class="ob-step-num">3</div><div class="ob-step-txt"><div class="ob-step-title">Fill in the details</div><div class="ob-step-desc">Amount, date, description, category, payment method, and optional tags or notes.</div></div></div>
+        <div class="ob-step"><div class="ob-step-num">4</div><div class="ob-step-txt"><div class="ob-step-title">Save & track</div><div class="ob-step-desc">Your transaction appears instantly. Click any row later to edit it, or hover to delete.</div></div></div>
+      </div>
+      <div class="ob-cta"><button class="btn prim" onclick="openAdd(null)">＋ Add Your First Transaction</button></div>
+    </div>
+  </div>`;
+  G('txlist').innerHTML=list.length?list.map(txRow).join(''):emptyTx;
   const net=list.reduce((s,t)=>t.type==='expense'?s-t.amount:s+t.amount,0);
   G('txct').textContent=list.length+' transactions · Net: '+sgn(net);
 }
@@ -800,7 +842,21 @@ function delBud(id){delete DB.budgets[id];save();renderBud();toast('Budget remov
 
 function renderBud(){
   const mx=mTx();const cs=catSpend(mx);const en=Object.entries(DB.budgets);
-  if(!en.length){G('budlist').innerHTML='<div class="emp"><div class="ei">◫</div><p>No budgets set</p></div>';G('bt').textContent=G('bs').textContent=G('br').textContent=fmt(0);if(cBud){cBud.destroy();cBud=null}return}
+  if(!en.length){
+    G('budlist').innerHTML=`<div class="ob" style="border:none;box-shadow:none;background:transparent;padding:16px 0">
+      <span class="ob-icon">🎯</span>
+      <div class="ob-title">Budget Planner</div>
+      <div class="ob-desc">Set monthly spending limits per category. SpendWise will warn you when you're getting close — so you never overspend again.</div>
+      <div class="ob-steps">
+        <div class="ob-step"><div class="ob-step-num">1</div><div class="ob-step-txt"><div class="ob-step-title">Click ＋ Set Budget</div><div class="ob-step-desc">Choose a spending category like Food, Transport, or Entertainment.</div></div></div>
+        <div class="ob-step"><div class="ob-step-num">2</div><div class="ob-step-txt"><div class="ob-step-title">Enter a monthly limit</div><div class="ob-step-desc">Set a realistic cap for how much you want to spend in that category each month.</div></div></div>
+        <div class="ob-step"><div class="ob-step-num">3</div><div class="ob-step-txt"><div class="ob-step-title">Watch the bar fill up</div><div class="ob-step-desc">As you log expenses, the bar fills. It turns striped at 80% and shows OVER when exceeded. You'll get an alert too!</div></div></div>
+      </div>
+      <div class="ob-cta"><button class="btn prim" onclick="openBud()">＋ Set Your First Budget</button></div>
+    </div>`;
+    G('bt').textContent=G('bs').textContent=G('br').textContent=fmt(0);
+    if(cBud){cBud.destroy();cBud=null}return;
+  }
   let tb=0,ts=0;
   G('budlist').innerHTML=en.map(([id,bud])=>{const c=catOf(id);const sp=cs[id]||0;const p=Math.min(sp/bud*100,100);const cl=p>=100?'over':p>=80?'warn':'';const tg=p>=100?'<span style="font-family:var(--mono);font-size:.54rem;background:var(--b);color:var(--w);padding:1px 5px">OVER</span>':p>=80?'<span style="font-family:var(--mono);font-size:.54rem;color:var(--g5)">⚠</span>':'';tb+=bud;ts+=sp;
     return`<div style="margin-bottom:16px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;gap:6px"><div style="font-weight:600;font-size:.83rem;display:flex;align-items:center;gap:5px;flex:1">${c.icon} ${c.name} ${tg}</div><div style="display:flex;align-items:center;gap:7px;flex-shrink:0"><span style="font-family:var(--mono);font-size:.65rem;color:var(--g5)">${fmt(sp)} / ${fmt(bud)}</span><button class="btn sm danger" onclick="delBud('${id}')">✕</button></div></div><div class="bwrap"><div class="bar ${cl}" style="width:${p.toFixed(1)}%"></div></div><div style="font-family:var(--mono);font-size:.58rem;color:var(--g4);margin-top:3px">${fmt(Math.max(bud-sp,0))} left · ${p.toFixed(0)}%</div></div>`;
@@ -821,7 +877,26 @@ function delGoal(id){if(!confirm('Delete goal?'))return;DB.goals=DB.goals.filter
 
 function renderGoals(){
   const el=G('glist');
-  if(!DB.goals.length){el.innerHTML='<div class="emp" style="grid-column:1/-1"><div class="ei">◉</div><p>No savings goals yet</p></div>';return}
+  if(!DB.goals.length){
+    el.innerHTML=`<div style="grid-column:1/-1"><div class="ob">
+      <span class="ob-icon">🏆</span>
+      <div class="ob-title">Savings Goals</div>
+      <div class="ob-desc">Set financial targets and track your progress. Whether it's an emergency fund, a vacation, a new phone — every big goal starts with a plan.</div>
+      <div class="ob-features">
+        <div class="ob-feat"><div class="ob-feat-ic">📊</div><div>Visual progress bar & % complete</div></div>
+        <div class="ob-feat"><div class="ob-feat-ic">📅</div><div>Target date with days remaining</div></div>
+        <div class="ob-feat"><div class="ob-feat-ic">💡</div><div>Monthly savings needed to hit goal</div></div>
+        <div class="ob-feat"><div class="ob-feat-ic">🎉</div><div>Celebration when you reach 100%</div></div>
+      </div>
+      <div class="ob-steps">
+        <div class="ob-step"><div class="ob-step-num">1</div><div class="ob-step-txt"><div class="ob-step-title">Click ＋ New Goal</div><div class="ob-step-desc">Give your goal a name — like "Emergency Fund" or "Vacation to Japan".</div></div></div>
+        <div class="ob-step"><div class="ob-step-num">2</div><div class="ob-step-txt"><div class="ob-step-title">Set target amount & date</div><div class="ob-step-desc">How much do you need and by when? SpendWise calculates how much to save per month automatically.</div></div></div>
+        <div class="ob-step"><div class="ob-step-num">3</div><div class="ob-step-txt"><div class="ob-step-title">Enter how much you already saved</div><div class="ob-step-desc">Already put something aside? Add it now so your progress bar starts in the right place.</div></div></div>
+        <div class="ob-step"><div class="ob-step-num">4</div><div class="ob-step-txt"><div class="ob-step-title">Tap ＋ Add to grow your savings</div><div class="ob-step-desc">Add any amount anytime. Watch the bar fill up. Hit 100% and celebrate 🎉</div></div></div>
+      </div>
+      <div class="ob-cta"><button class="btn prim" onclick="openGoal()">＋ Create Your First Goal</button></div>
+    </div></div>`;return;
+  }
   el.innerHTML=DB.goals.map(g=>{const p=Math.min(g.current/g.target*100,100);const dl=g.date?Math.ceil((new Date(g.date)-new Date())/86400000):null;const nd=g.target-g.current;const mp=(dl&&dl>0)?nd/(dl/30):null;const dn=p>=100;
     return`<div class="gcrd"><div style="display:flex;justify-content:space-between;margin-bottom:7px"><div style="font-size:1.8rem">${g.icon}</div><button class="btn sm danger" onclick="delGoal('${g.id}')">✕</button></div><div style="font-weight:700;font-size:.92rem;margin-bottom:3px">${safe(g.name)}${dn?' ✓':''}</div>${g.date?`<div style="font-family:var(--mono);font-size:.57rem;color:var(--g4);margin-bottom:6px">${g.date}${dl!==null?` · ${dl}d left`:''}</div>`:''}<div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.63rem;color:var(--g5);margin-bottom:5px"><span>${fmt(g.current)} saved</span><span>${fmt(g.target)} goal</span></div><div class="gbwrap"><div class="gbar" style="width:${p.toFixed(1)}%"></div></div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px"><div style="font-family:var(--mono);font-size:.58rem;color:var(--g4)">${dn?'🎉 Reached!':fmt(nd)+' to go'+(mp?' · '+fmt(mp)+'/mo':'')}</div><div style="font-family:var(--display);font-size:1.3rem">${p.toFixed(0)}%</div></div><div style="display:flex;gap:7px"><button class="btn sm" onclick="wdGoal('${g.id}',50)" ${g.current<50?'disabled':''}>−50</button><button class="btn prim sm" onclick="openAddToGoal('${g.id}')">＋ Add</button></div></div>`;
   }).join('');
@@ -834,7 +909,30 @@ function setRP(p,btn){DB.rpP=p;document.querySelectorAll('#rppills .pill').forEa
 function rpTx(){const n=new Date();let s;if(DB.rpP==='month')s=new Date(n.getFullYear(),n.getMonth(),1);else if(DB.rpP==='quarter')s=new Date(n.getFullYear(),Math.floor(n.getMonth()/3)*3,1);else s=new Date(n.getFullYear(),0,1);return DB.transactions.filter(t=>new Date(t.date)>=s)}
 
 function renderReports(){
-  const tx=rpTx();const inc=tx.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);const exp=tx.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);const sr=inc>0?((inc-exp)/inc*100).toFixed(1):0;const days=[...new Set(tx.map(t=>t.date))].length||1;
+  const tx=rpTx();
+  if(!DB.transactions.length){
+    G('rpstat').innerHTML='';
+    G('ch-line').getContext('2d').clearRect(0,0,9999,9999);
+    G('ch-pie').getContext('2d').clearRect(0,0,9999,9999);
+    G('hmgrid').innerHTML='';
+    G('rptl').innerHTML=`<div class="ob" style="border:none;box-shadow:none;background:transparent;padding:8px 0">
+      <span class="ob-icon">📈</span>
+      <div class="ob-title">Reports & Analytics</div>
+      <div class="ob-desc">Get deep insights into your spending patterns, income trends, savings rate, and daily averages — all visualised in beautiful charts.</div>
+      <div class="ob-features">
+        <div class="ob-feat"><div class="ob-feat-ic">📉</div><div>Income vs Expense line chart (6 months)</div></div>
+        <div class="ob-feat"><div class="ob-feat-ic">🥧</div><div>Category spending pie chart</div></div>
+        <div class="ob-feat"><div class="ob-feat-ic">🔥</div><div>84-day spending heatmap</div></div>
+        <div class="ob-feat"><div class="ob-feat-ic">⏱</div><div>Transaction timeline view</div></div>
+        <div class="ob-feat"><div class="ob-feat-ic">📆</div><div>Filter by Month, Quarter, or Year</div></div>
+        <div class="ob-feat"><div class="ob-feat-ic">💯</div><div>Savings rate & daily average stats</div></div>
+      </div>
+      <div class="ob-desc" style="margin-bottom:16px">Reports need transactions to work with. Add some income and expenses first, then come back here to see your data come to life.</div>
+      <div class="ob-cta"><button class="btn prim" onclick="go('transactions',document.querySelector('[data-pg=transactions]'))">＋ Add Transactions First</button></div>
+    </div>`;
+    return;
+  }
+  const inc=tx.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);const exp=tx.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);const sr=inc>0?((inc-exp)/inc*100).toFixed(1):0;const days=[...new Set(tx.map(t=>t.date))].length||1;
   G('rpstat').innerHTML=`<div class="sbox stripe"><div class="slbl">Income</div><div class="sval">${fmt(inc)}</div></div><div class="sbox"><div class="slbl">Expenses</div><div class="sval">${fmt(exp)}</div></div><div class="sbox hatch"><div class="slbl">Savings Rate</div><div class="sval">${sr}%</div></div><div class="sbox"><div class="slbl">Avg/Day</div><div class="sval">${fmt(exp/days)}</div></div>`;
   const m6=[];for(let i=5;i>=0;i--){const d=new Date();d.setMonth(d.getMonth()-i);m6.push({k:d.toISOString().slice(0,7),l:d.toLocaleString('default',{month:'short'})})}
   if(cLine){cLine.destroy();cLine=null}
@@ -859,7 +957,25 @@ function renderRec(){
   const mo=DB.recurring.reduce((s,r)=>s+r.amount*(RMULT[r.frequency]||1),0);
   G('recm').textContent=fmt(mo);G('reca').textContent=fmt(mo*12);G('recct').textContent=DB.recurring.length;
   const el=G('reclist');
-  if(!DB.recurring.length){el.innerHTML='<div class="emp"><div class="ei">↺</div><p>No recurring expenses</p></div>';return}
+  if(!DB.recurring.length){
+    el.innerHTML=`<div class="ob">
+      <span class="ob-icon">🔁</span>
+      <div class="ob-title">Recurring Expenses</div>
+      <div class="ob-desc">Track your subscriptions, rent, EMIs, and any bills that repeat regularly. SpendWise calculates your total monthly and annual commitment automatically.</div>
+      <div class="ob-features">
+        <div class="ob-feat"><div class="ob-feat-ic">📺</div><div>Streaming: Netflix, Spotify, Disney+</div></div>
+        <div class="ob-feat"><div class="ob-feat-ic">🏠</div><div>Housing: Rent, EMI, maintenance</div></div>
+        <div class="ob-feat"><div class="ob-feat-ic">💪</div><div>Health: Gym, insurance, medicines</div></div>
+        <div class="ob-feat"><div class="ob-feat-ic">💡</div><div>Utilities: Electricity, internet, phone</div></div>
+      </div>
+      <div class="ob-steps">
+        <div class="ob-step"><div class="ob-step-num">1</div><div class="ob-step-txt"><div class="ob-step-title">Click ＋ Add Recurring</div><div class="ob-step-desc">Enter the name of your subscription or bill, like "Netflix" or "House Rent".</div></div></div>
+        <div class="ob-step"><div class="ob-step-num">2</div><div class="ob-step-txt"><div class="ob-step-title">Set amount & frequency</div><div class="ob-step-desc">Choose daily, weekly, monthly, quarterly, or yearly. SpendWise converts everything to a monthly total.</div></div></div>
+        <div class="ob-step"><div class="ob-step-num">3</div><div class="ob-step-txt"><div class="ob-step-title">Hit "Log Now" when due</div><div class="ob-step-desc">When a payment is due, tap Log Now to instantly add it as a transaction — no re-entering details.</div></div></div>
+      </div>
+      <div class="ob-cta"><button class="btn prim" onclick="openRec()">＋ Add Your First Recurring Expense</button></div>
+    </div>`;return;
+  }
   el.innerHTML=DB.recurring.map(r=>{const c=catOf(r.category);const di=r.nextDate?Math.ceil((new Date(r.nextDate)-new Date())/86400000):null;const ov=di!==null&&di<0;
     return`<div class="card" style="padding:13px;display:flex;align-items:center;gap:13px;flex-wrap:wrap"><div class="txic">${c.icon}</div><div style="flex:1;min-width:100px"><div style="font-weight:700">${safe(r.name)}</div><div style="font-family:var(--mono);font-size:.6rem;color:var(--g5)">${r.frequency.toUpperCase()} · ${c.name}${di!==null?' · '+(ov?'<b>OVERDUE '+Math.abs(di)+'d</b>':'Due '+di+'d'):''}</div></div><div style="text-align:right;flex-shrink:0"><div style="font-family:var(--mono);font-weight:700">${fmt(r.amount)}</div><span style="font-family:var(--mono);font-size:.54rem;background:var(--b);color:var(--w);padding:1px 5px">↺ ${r.frequency}</span></div><div style="display:flex;gap:6px;flex-shrink:0"><button class="btn sm" onclick="logRec('${r.id}')">Log Now</button><button class="iBtn" style="width:27px;height:27px;font-size:.72rem" onclick="delRec('${r.id}')">✕</button></div></div>`;
   }).join('');
@@ -874,7 +990,23 @@ function delCat(id){if(DEF_IDS.includes(id)){toast('Cannot delete default');retu
 
 function renderCats(){
   const mx=mTx();const cs=catSpend(mx);
-  G('catgrid').innerHTML=DB.categories.map(c=>{const sp=cs[c.id]||0;const ct=DB.transactions.filter(t=>t.category===c.id).length;const def=DEF_IDS.includes(c.id);
+  const hasCustom=DB.categories.some(c=>!DEF_IDS.includes(c.id));
+  const onboarding=hasCustom?'':
+    `<div class="ob" style="margin-bottom:20px">
+      <span class="ob-icon">🗂️</span>
+      <div class="ob-title">Categories</div>
+      <div class="ob-desc">Categories help you organise every transaction. SpendWise comes with 10 built-in categories. You can create your own custom ones too — like "Pets", "Hobbies", or "Side Business".</div>
+      <div class="ob-features">
+        <div class="ob-feat"><div class="ob-feat-ic">🍔</div><div>Food & Dining</div></div>
+        <div class="ob-feat"><div class="ob-feat-ic">🚗</div><div>Transport</div></div>
+        <div class="ob-feat"><div class="ob-feat-ic">🎮</div><div>Entertainment</div></div>
+        <div class="ob-feat"><div class="ob-feat-ic">🏥</div><div>Health</div></div>
+        <div class="ob-feat"><div class="ob-feat-ic">🛍️</div><div>Shopping</div></div>
+        <div class="ob-feat"><div class="ob-feat-ic">➕</div><div>Add your own custom category</div></div>
+      </div>
+      <div class="ob-cta"><button class="btn prim" onclick="openCat()">＋ Add Custom Category</button></div>
+    </div>`;
+  G('catgrid').innerHTML=onboarding+DB.categories.map(c=>{const sp=cs[c.id]||0;const ct=DB.transactions.filter(t=>t.category===c.id).length;const def=DEF_IDS.includes(c.id);
     return`<div class="sbox"><div style="font-size:1.8rem;margin-bottom:7px">${c.icon}</div><div style="font-weight:700;margin-bottom:3px">${safe(c.name)}</div><div style="font-family:var(--mono);font-size:.58rem;color:var(--g5)">Month: ${fmt(sp)}</div><div style="font-family:var(--mono);font-size:.58rem;color:var(--g5)">${ct} transactions</div>${!def?`<button class="btn sm danger" style="margin-top:10px" onclick="delCat('${c.id}')">Delete</button>`:''}</div>`;
   }).join('');
 }
@@ -955,61 +1087,162 @@ function botAnswer(q){
   const cs=catSpend(mx);const top=Object.entries(cs).sort((a,b)=>b[1]-a[1]);
   const mo=new Date().toLocaleString('default',{month:'long'});
 
-  if(hit(q,['balance','overview','how am i','summary','this month'])){
-    const days=new Date().getDate();const proj=(exp/days)*new Date(new Date().getFullYear(),new Date().getMonth()+1,0).getDate();
-    return`**${mo} Overview**\n\n💰 Income: **${fmt(inc)}**\n💸 Expenses: **${fmt(exp)}**\n📊 Net: **${fmt(net)}**\n\nProjected month-end spend: **${fmt(proj)}**${net<0?'\n\n⚠ You are spending more than you earn!':'\n\n✅ Finances look healthy!'}`;
+  // ── GREET ──
+  if(hit(q,['hi','hello','hey','good morning','good afternoon','good evening','sup','yo'])){
+    const hasData=all.length>0;
+    return`Hey! 👋 I'm **Penny**, your personal finance AI.\n\n${hasData
+      ?`This month: **${fmt(inc)}** earned · **${fmt(exp)}** spent · Net **${fmt(net)}**.\n\nAsk me about any page — Goals, Budget, Reports, Recurring — or just ask what you want to know!`
+      :`You haven't added any data yet. Here's what I can help you with:\n\n• How to add **transactions**\n• Setting up **budgets**\n• Creating **savings goals**\n• Tracking **recurring** expenses\n• Understanding **reports**\n\nJust ask me about any of these! 😊`}`;
   }
-  if(hit(q,['top spend','most spend','where','highest','biggest','category'])){
-    if(!top.length)return"No expenses logged yet this month. Add some transactions!";
-    const lines=top.slice(0,5).map(([id,a],i)=>`${['🥇','🥈','🥉','4️⃣','5️⃣'][i]} **${catOf(id).name}** — ${fmt(a)}`).join('\n');
-    return`**Top Spending — ${mo}**\n\n${lines}\n\nBiggest: **${catOf(top[0][0]).name}** at **${fmt(top[0][1])}**`;
+
+  // ── BALANCE / OVERVIEW ──
+  if(hit(q,['balance','overview','how am i doing','summary','this month','net'])){
+    if(!all.length)return`You haven't added any transactions yet.\n\n**To get started:**\n1. Click **＋ Add** in the top bar\n2. Choose Expense or Income\n3. Fill in the details and save\n\nOnce you log a few transactions, I'll give you a full overview! 📊`;
+    const days=new Date().getDate();
+    const proj=(exp/days)*new Date(new Date().getFullYear(),new Date().getMonth()+1,0).getDate();
+    return`**${mo} Overview**\n\n💰 Income: **${fmt(inc)}**\n💸 Expenses: **${fmt(exp)}**\n📊 Net: **${fmt(net)}**\nProjected month-end spend: **${fmt(proj)}**\n\n${net<0?'⚠ You are spending more than you earn this month! Consider reviewing your budget.':'✅ Finances look healthy! Keep it up.'}`;
   }
-  if(hit(q,['budget','limit','over budget'])){
+
+  // ── GOALS PAGE EXPLANATION ──
+  if(hit(q,['what is goals','what are goals','explain goals','goals page','savings goals','tell me about goals','how do goals','about goals'])){
+    return`**🏆 Savings Goals** — here's everything about this page:\n\n**What it does:**\nHelps you save toward big financial targets — like an emergency fund, a vacation, a phone, or a car.\n\n**Features:**\n📊 Progress bar showing % saved\n📅 Target date + days remaining\n💡 Monthly amount needed to hit goal\n🎉 Celebration when you reach 100%\n\n**How to add a goal:**\n1. Go to **Goals** in the sidebar\n2. Click **＋ New Goal**\n3. Enter a name (e.g. "Emergency Fund")\n4. Set a target amount (e.g. ₹50,000)\n5. Enter how much you've already saved\n6. Pick a target date & icon\n7. Hit **Create Goal** ✓\n\n**After creating:**\nTap **＋ Add** on your goal card to add savings anytime. The bar fills up as you save!\n\n${DB.goals.length?`You currently have **${DB.goals.length}** goal(s). Want me to show your progress?`:`You don't have any goals yet — want to create one now? Just go to the **Goals** page!`}`;
+  }
+
+  // ── GOALS DATA ──
+  if(hit(q,['goal','saving','savings','target','fund','my goal'])){
+    if(!DB.goals.length){
+      return`You don't have any savings goals yet! 🏆\n\n**Here's how to create one:**\n1. Click **Goals** in the sidebar\n2. Click **＋ New Goal**\n3. Give it a name like "Emergency Fund" or "New Phone"\n4. Set the target amount and date\n5. Enter what you've already saved\n6. Click **Create Goal** ✓\n\nSpendWise will calculate how much you need to save every month to hit your target on time!`;
+    }
+    return`**Your Savings Goals** 🏆\n\n`+DB.goals.map(g=>{
+      const p=Math.min(g.current/g.target*100,100).toFixed(0);
+      const bar='█'.repeat(Math.round(p/10))+'░'.repeat(10-Math.round(p/10));
+      const dl=g.date?Math.ceil((new Date(g.date)-new Date())/86400000):null;
+      return`${g.icon} **${g.name}**\n${bar} ${p}%\n${fmt(g.current)} saved of ${fmt(g.target)}${dl!==null?` · ${dl} days left`:''}`;
+    }).join('\n\n')+`\n\nTap **＋ Add** on any goal card to add savings!`;
+  }
+
+  // ── BUDGET PAGE EXPLANATION ──
+  if(hit(q,['what is budget','explain budget','budget page','about budget','tell me about budget','how does budget','budget planner'])){
+    return`**🎯 Budget Planner** — here's everything about this page:\n\n**What it does:**\nLets you set a monthly spending limit for each expense category. SpendWise tracks how much you spend and warns you before you overshoot.\n\n**How the progress bar works:**\n🟩 Normal — under 80% used\n⚠ Striped — above 80% (near limit)\n🚨 OVER — limit exceeded\n\n**You'll get alerts** when you log a transaction that hits 80% or 100% of a budget.\n\n**How to set a budget:**\n1. Go to **Budget** in the sidebar\n2. Click **＋ Set Budget**\n3. Choose a category (e.g. Food, Transport)\n4. Enter a monthly limit (e.g. ₹5,000)\n5. Click **Set Budget** ✓\n\n${Object.keys(DB.budgets).length?`You have **${Object.keys(DB.budgets).length}** budget(s) set. Ask me "How are my budgets?" to check status!`:`You haven't set any budgets yet. Head to the **Budget** page to get started!`}`;
+  }
+
+  // ── BUDGET DATA ──
+  if(hit(q,['budget','limit','over budget','how much left','spending limit'])){
     const en=Object.entries(DB.budgets);
-    if(!en.length)return"No budgets set yet. Go to **Budget → ＋ Set Budget** to add one!";
+    if(!en.length){
+      return`No budgets set yet! 🎯\n\n**How to set one:**\n1. Go to **Budget** in the sidebar\n2. Click **＋ Set Budget**\n3. Pick a category and enter a monthly limit\n4. Click **Set Budget** ✓\n\nSpendWise will warn you at 80% and again if you exceed it!`;
+    }
     const lines=en.map(([id,b])=>{const sp=cs[id]||0;const p=(sp/b*100).toFixed(0);return`${p>=100?'🚨':p>=80?'⚠️':'✅'} **${catOf(id).name}**: ${fmt(sp)} / ${fmt(b)} (${p}%)`}).join('\n');
     const ov=en.filter(([id,b])=>(cs[id]||0)>=b).length;
-    return`**Budget Status**\n\n${lines}\n\n${ov?`🚨 ${ov} budget(s) exceeded this month.`:'✅ All budgets on track!'}`;
+    return`**Budget Status** 🎯\n\n${lines}\n\n${ov?`🚨 **${ov}** budget(s) exceeded this month!`:'✅ All budgets are on track!'}`;
   }
-  if(hit(q,['goal','saving','savings','target','fund'])){
-    if(!DB.goals.length)return"No savings goals yet. Go to **Goals → ＋ New Goal** to start!";
-    return`**Savings Goals**\n\n`+DB.goals.map(g=>{const p=Math.min(g.current/g.target*100,100).toFixed(0);const bar='█'.repeat(Math.round(p/10))+'░'.repeat(10-Math.round(p/10));return`${g.icon} **${g.name}**\n${bar} ${p}% · ${fmt(g.current)} / ${fmt(g.target)}`}).join('\n\n');
+
+  // ── RECURRING PAGE EXPLANATION ──
+  if(hit(q,['what is recurring','explain recurring','recurring page','about recurring','tell me about recurring','how does recurring','subscriptions page'])){
+    return`**🔁 Recurring Expenses** — here's everything about this page:\n\n**What it does:**\nTracks your regular bills and subscriptions so you never forget them. It calculates your total monthly and annual commitment automatically.\n\n**Great for tracking:**\n📺 Streaming — Netflix, Spotify, Disney+\n🏠 Housing — Rent, EMI, maintenance\n💡 Utilities — Electricity, internet, phone\n💪 Health — Gym, insurance\n\n**How to add a recurring expense:**\n1. Go to **Recurring** in the sidebar\n2. Click **＋ Add Recurring**\n3. Enter the name (e.g. "Netflix")\n4. Set the amount and frequency (monthly, yearly, etc.)\n5. Pick a category and due date\n6. Click **Add Recurring** ✓\n\n**Log Now button:**\nWhen a payment is due, hit **Log Now** to instantly add it as a real transaction — no re-entering details!\n\n${DB.recurring.length?`You have **${DB.recurring.length}** recurring item(s) set up.`:`You haven't added any recurring expenses yet. Head to the **Recurring** page!`}`;
   }
-  if(hit(q,['recurring','subscription','repeat','bill'])){
-    if(!DB.recurring.length)return"No recurring expenses. Go to **Recurring → ＋ Add Recurring**!";
+
+  // ── RECURRING DATA ──
+  if(hit(q,['recurring','subscription','repeat','bill','monthly bill','emi'])){
+    if(!DB.recurring.length){
+      return`No recurring expenses set up yet! 🔁\n\n**How to add one:**\n1. Go to **Recurring** in the sidebar\n2. Click **＋ Add Recurring**\n3. Enter name, amount, frequency\n4. Set a due date and category\n5. Click **Add Recurring** ✓\n\nWhen a payment is due, hit **Log Now** to record it instantly!`;
+    }
     const mo2=DB.recurring.reduce((s,r)=>s+r.amount*(RMULT[r.frequency]||1),0);
-    return`**Recurring Expenses**\n\n`+DB.recurring.map(r=>`↺ **${r.name}** — ${fmt(r.amount)}/${r.frequency}`).join('\n')+`\n\n**Monthly total: ${fmt(mo2)}** (${fmt(mo2*12)}/yr)`;
+    return`**Recurring Expenses** 🔁\n\n`+DB.recurring.map(r=>`↺ **${r.name}** — ${fmt(r.amount)}/${r.frequency}`).join('\n')+`\n\n**Monthly total: ${fmt(mo2)}** (${fmt(mo2*12)}/yr)\n\nHit **Log Now** on any item to record today's payment!`;
   }
-  if(hit(q,['income','earn','salary','revenue','received'])){
-    const iAll=all.filter(t=>t.type==='income');const totI=iAll.reduce((s,t)=>s+t.amount,0);const byCat={};iAll.forEach(t=>{byCat[t.category]=(byCat[t.category]||0)+t.amount});
+
+  // ── TRANSACTIONS PAGE EXPLANATION ──
+  if(hit(q,['what is transactions','explain transactions','transactions page','about transactions','tell me about transactions','how to log','how to add expense','how to add income'])){
+    return`**💳 Transactions** — here's everything about this page:\n\n**What it does:**\nThis is where you log every rupee you earn and spend. It's the heart of SpendWise — all other pages use this data.\n\n**How to add a transaction:**\n1. Click **＋ Add** in the top bar (works from any page!)\n2. Choose **Expense** tab (for spending) or **Income** tab (for earnings)\n3. Enter the amount and date\n4. Write a short description\n5. Pick a category — Income has its own categories like Salary, Freelance, Investment\n6. Choose payment method (Cash, UPI, Card...)\n7. Add optional tags or notes\n8. Click **Save Transaction** ✓\n\n**Filtering:**\nUse the filter chips (All / Expenses / Income), category dropdown, month picker, or search box to find any transaction fast.\n\n**Editing / Deleting:**\nClick any transaction row to edit it. Hover to reveal the ✕ delete button.`;
+  }
+
+  // ── REPORTS PAGE EXPLANATION ──
+  if(hit(q,['what is reports','explain reports','reports page','about reports','tell me about reports','analytics','charts','heatmap'])){
+    return`**📈 Reports & Analytics** — here's everything about this page:\n\n**What it shows:**\n📉 Income vs Expense line chart (6 months)\n🥧 Category spending pie chart\n🔥 84-day spending heatmap (darker = more spent)\n⏱ Transaction timeline (most recent 10)\n📊 Savings rate, daily average, totals\n\n**Period filter:**\nSwitch between **Month**, **Quarter**, or **Year** view using the buttons at the top right.\n\n**Spending Heatmap:**\nLike a GitHub contribution graph — each square is one day. Darker squares mean you spent more that day. Hover to see the exact amount.\n\n**How to use it:**\nJust add transactions and Reports fills up automatically. No setup needed!\n\n${all.length?`You have **${all.length}** transactions to analyse. Go to **Reports** to see your charts!`:`You need at least a few transactions before Reports can show anything useful. Add some first!`}`;
+  }
+
+  // ── CATEGORIES PAGE EXPLANATION ──
+  if(hit(q,['what is categories','explain categories','categories page','about categories','tell me about categories','custom category'])){
+    return`**🗂️ Categories** — here's everything about this page:\n\n**What it does:**\nOrganises your transactions into groups so you can see where your money goes.\n\n**Default expense categories (10):**\n🍔 Food & Dining · 🚗 Transport · 🎮 Entertainment · 🏥 Health · 🛍️ Shopping · 💡 Utilities · 🏠 Housing · 📚 Education · 💰 Savings · 📦 Other\n\n**Income categories (9):**\n💼 Salary · 🖥️ Freelance · 🏢 Business · 📈 Investment · 🏠 Rental · 🎁 Gift · ↩️ Refund · ⭐ Bonus · 💵 Other\n\n**How to add a custom category:**\n1. Go to **Categories** in the sidebar\n2. Click **＋ New Category**\n3. Enter a name (e.g. "Pets" or "Side Business")\n4. Choose an emoji icon\n5. Click **Add Category** ✓\n\nDefault categories cannot be deleted. Custom ones can be removed anytime.`;
+  }
+
+  // ── DASHBOARD PAGE EXPLANATION ──
+  if(hit(q,['what is dashboard','explain dashboard','dashboard','home page','about dashboard','tell me about dashboard'])){
+    return`**◈ Dashboard** — your financial home screen!\n\n**What it shows:**\n📊 4 stat cards — Income, Expenses, Net Balance, Daily Average (all for this month)\n💳 Recent Transactions — last 6 logged\n▦ Spending by Category — doughnut chart\n↗ Monthly Trend — 6-month income vs expense bar chart\n◎ Top Spending — ranked categories with bars\n\n**Everything updates automatically** as you add transactions. The dashboard is your real-time snapshot of where you stand financially.\n\n${all.length?`Currently showing data for **${mo}**.`:`Dashboard is empty because you haven't added any transactions yet. Click **＋ Add** to get started!`}`;
+  }
+
+  // ── SETTINGS PAGE EXPLANATION ──
+  if(hit(q,['settings','theme','how to change theme','how to change currency','preferences','data export','backup'])){
+    return`**⚙️ Settings** — here's what you can do:\n\n**🎨 Theme Style (7 options):**\nClassic B&W · Dark Mode · Warm Cream · Deep Navy · Forest Green · Rose Red · Slate Grey\n\n**Preferences:**\n• Budget Alerts — get notified at 80% & 100%\n• Show Decimals — show paise in amounts\n• Compact Rows — denser transaction list\n\n**Currency:**\nChange in the **sidebar footer**. Currently set to **${DB.currency}**.\n\n**Data Management:**\n📤 Export CSV — download all transactions\n💾 Backup JSON — full data backup\n📥 Import — restore from CSV or JSON\n🗑 Clear All — wipe everything\n\nGo to **Settings** in the sidebar to access all of these!`;
+  }
+
+  // ── TOP SPENDING ──
+  if(hit(q,['top spend','most spend','where am i spending','highest','biggest expense','spending breakdown'])){
+    if(!top.length)return`No expenses logged yet this month.\n\n**To start tracking:**\n1. Click **＋ Add** in the top bar\n2. Choose the **Expense** tab\n3. Fill in the details\n4. Ask me again and I'll show your top categories! 📊`;
+    const lines=top.slice(0,5).map(([id,a],i)=>`${['🥇','🥈','🥉','4️⃣','5️⃣'][i]} **${catOf(id).name}** — ${fmt(a)}`).join('\n');
+    return`**Top Spending — ${mo}** 📊\n\n${lines}\n\nBiggest category: **${catOf(top[0][0]).name}** at **${fmt(top[0][1])}**\n\n💡 Tip: Set a budget for your top category to keep it in check!`;
+  }
+
+  // ── INCOME ──
+  if(hit(q,['income','earn','salary','revenue','received','how much did i earn'])){
+    const iAll=all.filter(t=>t.type==='income');
+    if(!iAll.length)return`No income recorded yet.\n\n**To log income:**\n1. Click **＋ Add**\n2. Switch to the **Income** tab\n3. Choose a category: Salary, Freelance, Business, etc.\n4. Enter amount and save ✓`;
+    const totI=iAll.reduce((s,t)=>s+t.amount,0);
+    const byCat={};iAll.forEach(t=>{byCat[t.category]=(byCat[t.category]||0)+t.amount});
     const lines=Object.entries(byCat).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([id,a])=>`💵 **${catOf(id).name}**: ${fmt(a)}`).join('\n');
-    return`**Income Breakdown**\n\nAll-time: **${fmt(totI)}**\nThis month: **${fmt(inc)}**\n\n${lines||'No income categories yet'}`;
+    return`**Income Breakdown** 💰\n\nAll-time: **${fmt(totI)}**\nThis month: **${fmt(inc)}**\n\n${lines}`;
   }
-  if(hit(q,['transaction','recent','last','history'])){
-    const r=all.slice(0,5);if(!r.length)return"No transactions yet! Click **＋ Add** to log one.";
-    return`**Recent Transactions**\n\n`+r.map(t=>`${t.type==='income'?'💚':'🔴'} **${t.description}** — ${fmt(t.amount)} (${t.date})`).join('\n');
+
+  // ── RECENT TRANSACTIONS ──
+  if(hit(q,['transaction','recent','last','history','show my transactions'])){
+    const r=all.slice(0,5);
+    if(!r.length)return`No transactions yet! 💳\n\n**Here's how to add one:**\n1. Click **＋ Add** in the top bar\n2. Choose **Expense** or **Income** tab\n3. Enter amount, date, description\n4. Pick a category and save ✓\n\nYou can also go to the **Transactions** page to see filters and search!`;
+    return`**Recent Transactions** 💳\n\n`+r.map(t=>`${t.type==='income'?'💚':'🔴'} **${t.description}** — ${fmt(t.amount)} (${t.date})`).join('\n')+`\n\nGo to **Transactions** in the sidebar to see all ${all.length} transactions with filters!`;
   }
-  if(hit(q,['tip','advice','suggest','improve','save more','help me'])){
+
+  // ── TIP ──
+  if(hit(q,['tip','advice','suggest','improve','save more','help me save','money tip'])){
     const tips=[
-      `💡 **50/30/20 Rule**: Spend 50% on needs, 30% on wants, save 20%. Try setting budgets to match!`,
-      top.length?`💡 Your biggest expense is **${catOf(top[0][0]).name}** (${fmt(top[0][1])}). Even a 10% cut there saves you **${fmt(top[0][1]*0.1)}** this month!`:`💡 Start by tracking every expense — even small ones. Awareness is the foundation of good financial habits.`,
-      `💡 Automate your savings! Pay yourself first — transfer savings the same day you receive income.`,
-      `💡 Check your recurring expenses. Cancel unused subscriptions — they silently drain **hundreds per year**.`,
-      `💡 An emergency fund covering **3–6 months** of expenses protects you from unexpected costs. Start a goal for it!`,
-      `💡 Use the **tags** feature to mark tax-deductible expenses — it'll make tax season much easier!`,
+      `💡 **50/30/20 Rule**: Spend 50% on needs, 30% on wants, and save 20%. Set budgets that match this ratio!`,
+      top.length?`💡 Your biggest expense is **${catOf(top[0][0]).name}** (${fmt(top[0][1])}). Even a 10% cut saves **${fmt(top[0][1]*0.1)}** this month!`:`💡 Start tracking every expense — even small ones. Awareness is the first step to better finances!`,
+      `💡 **Automate savings**: Set a Savings Goal and contribute the same day you get your salary. Pay yourself first!`,
+      `💡 **Review subscriptions**: Cancel anything you haven't used in 30 days. Use the Recurring page to spot them easily.`,
+      `💡 **Emergency fund**: Aim to save 3–6 months of expenses. Create a Goal for it and add a little each month.`,
+      `💡 **UPI receipts**: Every time you tap to pay, log it in SpendWise. Small expenses add up — ₹50 chai every day = ₹18,250/year!`,
+      `💡 **Budget alerts**: Enable them in Settings so SpendWise warns you at 80% of any budget. Prevents overspending!`,
     ];
     return tips[Math.floor(Math.random()*tips.length)];
   }
-  if(hit(q,['total','all time','lifetime','overall'])){const tI=all.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);const tE=all.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);return`**All-Time Summary**\n\n💰 Income: **${fmt(tI)}**\n💸 Expenses: **${fmt(tE)}**\n📊 Net Saved: **${fmt(tI-tE)}**\n📝 Transactions: **${all.length}**`}
-  if(hit(q,['theme','color','dark','appearance','style'])){return`You can pick a theme in **Settings → 🎨 Theme Style**. Options: Classic B&W, Dark Mode, Warm Cream, Deep Navy, Forest Green, Rose Red, Slate Grey!`}
-  if(hit(q,['currency','dollar','euro','pound'])){return`Your currency is **${DB.currency}**. Change it in the **sidebar footer** — supports USD, EUR, GBP, JPY, INR, KRW, AUD, CAD.`}
-  if(hit(q,['how to add','add transaction','add expense','add income','log expense'])){return`**How to Add a Transaction**\n\n1. Click **＋ Add** in the top bar\n2. Choose **Expense** or **Income** tab\n3. Fill in amount, date & description\n4. Pick a category (Income has its own categories!)\n5. Optionally add tags & notes\n6. Click **Save Transaction** ✓`}
-  if(hit(q,['hi','hello','hey','morning','afternoon','evening'])){return`Hey! 👋 I'm **Penny**, your SpendWise AI. I know all about your finances here. Ask me about your balance, spending, budgets, goals, or request a saving tip!`}
-  if(hit(q,['help','what can you','features','what do you'])){return`**I can help with:**\n\n📊 Monthly balance & overview\n📈 Top spending categories\n🎯 Budget status\n💰 Savings goals\n↺ Recurring expenses\n💵 Income breakdown\n📋 Recent transactions\n💡 Saving tips\n\nJust ask! 😊`}
-  return`I didn't catch that, but I can tell you about:\n\n• **Balance** this month\n• **Top spending** categories\n• **Budget** status\n• **Savings goals**\n• **Recurring** expenses\n• A money-saving **tip**\n\nTry asking one of those! 😊`;
+
+  // ── ALL-TIME TOTAL ──
+  if(hit(q,['total','all time','lifetime','overall','ever spent','ever earned'])){
+    if(!all.length)return`No data yet! Add some transactions and I'll show you all-time totals. 📊`;
+    const tI=all.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+    const tE=all.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+    return`**All-Time Summary** 📊\n\n💰 Total Income: **${fmt(tI)}**\n💸 Total Expenses: **${fmt(tE)}**\n📈 Net Saved: **${fmt(tI-tE)}**\n📝 Total Transactions: **${all.length}**`;
+  }
+
+  // ── CURRENCY ──
+  if(hit(q,['currency','rupee','dollar','euro','change currency','symbol'])){
+    return`Your current currency is **${DB.currency}** (Indian Rupee ₹ by default).\n\nTo change it:\n→ Look at the **bottom of the sidebar** (left panel)\n→ Use the **Currency** dropdown\n→ Choose from: $ USD · € EUR · £ GBP · ¥ JPY · ₹ INR · ₩ KRW · A$ AUD · C$ CAD\n\nAll amounts update instantly across the whole app!`;
+  }
+
+  // ── HOW TO ADD ──
+  if(hit(q,['how to add','how do i add','add transaction','log','record','track expense','track income'])){
+    return`**How to Add a Transaction** ✍️\n\n1. Click **＋ Add** in the top bar (available on every page)\n2. Choose the **Expense** tab for spending, or **Income** tab for earnings\n3. Income has its own categories: Salary, Freelance, Business, Investment, etc.\n4. Fill in amount, date, description\n5. Pick a category and payment method\n6. Optionally add tags (like "essential" or "tax-deductible") and notes\n7. Click **Save Transaction** ✓\n\n**Pro tip:** Click any existing transaction to edit it. Hover over a row to delete it!`;
+  }
+
+  // ── HELP ──
+  if(hit(q,['help','what can you do','what do you know','features','pages','menu','guide'])){
+    return`**I'm Penny — here's what I can explain:** 🤖\n\n📊 **Pages** — Ask about any page:\n• "Tell me about Goals"\n• "Explain the Budget page"\n• "What is Recurring?"\n• "How does Reports work?"\n\n💰 **Your data:**\n• Balance & monthly overview\n• Top spending categories\n• Budget status\n• Savings goals progress\n• Recurring expenses\n• Recent transactions\n• Income breakdown\n\n💡 **Guidance:**\n• How to add transactions\n• Money saving tips\n• Currency & settings help\n\nJust ask me anything in plain language! 😊`;
+  }
+
+  // ── FALLBACK ──
+  return`I didn't quite catch that! Here's what I can help with:\n\n**Ask about a page:**\n"Tell me about Goals" · "Explain Budgets" · "What is Recurring?"\n\n**Ask about your money:**\n"What's my balance?" · "Top spending?" · "Show my goals"\n\n**Ask for guidance:**\n"How do I add a transaction?" · "Give me a tip"\n\nTry one of those! 😊`;
 }
 
 function hit(q,kw){return kw.some(k=>q.includes(k))}
+
 
 // ════════════════════════════════════════════════════
 //  INIT
