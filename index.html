@@ -475,7 +475,7 @@ button:disabled{opacity:.4;cursor:not-allowed}
       <div class="fgrid">
         <div class="fg"><label>Amount *</label><input type="number" id="f-amt" placeholder="0.00" min="0" step="0.01"></div>
         <div class="fg"><label>Date *</label><input type="date" id="f-date"></div>
-        <div class="fg full"><label>Description *</label><input type="text" id="f-desc" placeholder="What was this for?"></div>
+        <div class="fg full"><label>Description <span style="font-weight:400;color:var(--g4)">(optional)</span></label><input type="text" id="f-desc" placeholder="What was this for? (optional)"></div>
         <div class="fg"><label>Category</label><select id="f-cat2"></select></div>
         <div class="fg"><label>Payment Method</label><select id="f-meth"><option>Cash</option><option>Credit Card</option><option>Debit Card</option><option>Bank Transfer</option><option>Digital Wallet</option><option>Cheque</option><option>Crypto</option></select></div>
         <div class="fg full"><label>Tags</label><div class="tagwrap" id="tagwrap"></div></div>
@@ -714,10 +714,9 @@ function setType(type){
 function saveTx(){
   const amt=parseFloat(G('f-amt').value);
   const date=G('f-date').value;
-  const desc=G('f-desc').value.trim();
+  const desc=G('f-desc').value.trim()||'No description';
   if(!amt||amt<=0){toast('⚠ Enter a valid amount');return}
   if(!date){toast('⚠ Select a date');return}
-  if(!desc){toast('⚠ Add a description');return}
   const tags=[...document.querySelectorAll('#tagwrap .tag.on')].map(t=>t.dataset.tag);
   const tx={id:G('f-id').value||uid(),amount:amt,date,description:desc,category:G('f-cat2').value,type:G('f-type').value,method:G('f-meth').value,notes:G('f-notes').value.trim(),tags,createdAt:new Date().toISOString()};
   const eid=G('f-id').value;
