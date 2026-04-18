@@ -194,68 +194,217 @@ button:disabled{opacity:.4;cursor:not-allowed}
 #instb.show{display:flex}
 
 /* ─────────────────────────────────
-   AI BOT STYLES
+   PENNY AI — COOL BOT UI
 ───────────────────────────────── */
 #bot-btn{
-  position:fixed;bottom:26px;right:26px;width:54px;height:54px;
-  background:var(--b);color:var(--w);border:none;border-radius:50%;
-  font-size:1.35rem;cursor:pointer;box-shadow:0 4px 18px rgba(0,0,0,.35);
-  z-index:400;transition:transform .2s,box-shadow .2s;
+  position:fixed;bottom:28px;right:28px;
+  width:60px;height:60px;
+  background:var(--b);color:var(--w);
+  border:3px solid var(--w);
+  outline:3px solid var(--b);
+  border-radius:50%;font-size:1.5rem;
+  cursor:pointer;z-index:400;
   display:flex;align-items:center;justify-content:center;
+  box-shadow:4px 4px 0 var(--b),0 8px 24px rgba(0,0,0,.35);
+  transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s;
 }
-#bot-btn:hover{transform:scale(1.08);box-shadow:0 6px 26px rgba(0,0,0,.45)}
-.bpulse{position:absolute;top:-2px;right:-2px;width:13px;height:13px;background:#22c55e;border-radius:50%;border:2px solid var(--w);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
-#bot{
-  position:fixed;bottom:90px;right:26px;width:355px;
-  background:var(--w);border:2.5px solid var(--b);box-shadow:6px 6px 0 var(--b);
-  z-index:400;display:none;flex-direction:column;max-height:500px;
+#bot-btn:hover{transform:scale(1.1) rotate(-10deg);box-shadow:6px 6px 0 var(--b),0 12px 32px rgba(0,0,0,.4)}
+#bot-btn:active{transform:scale(.96)}
+.bpulse{
+  position:absolute;top:1px;right:1px;
+  width:14px;height:14px;
+  background:#22c55e;border-radius:50%;
+  border:2px solid var(--w);
+  animation:bping 2s ease-in-out infinite;
 }
-#bot.show{display:flex}
-.bhd{background:var(--b);color:var(--w);padding:13px 15px;display:flex;align-items:center;gap:10px;flex-shrink:0}
-.bav{font-size:1.25rem;width:32px;height:32px;background:rgba(255,255,255,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.bhi{flex:1}
-.bhn{font-family:var(--mono);font-size:.72rem;font-weight:700;letter-spacing:1px}
-.bhs{font-size:.6rem;color:rgba(255,255,255,.55);font-family:var(--mono)}
-.bclose{background:none;border:none;color:var(--w);cursor:pointer;font-size:.95rem;opacity:.7;padding:0}
-.bclose:hover{opacity:1}
-.bmsgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;min-height:160px}
-.bmsg{max-width:84%;font-size:.8rem;line-height:1.45}
-.bmsg.bot{align-self:flex-start}.bmsg.usr{align-self:flex-end}
-.bbub{padding:8px 12px;border:1.5px solid var(--b)}
-.bmsg.bot .bbub{background:var(--g1);border-color:var(--g3)}
-.bmsg.usr .bbub{background:var(--b);color:var(--w)}
-.btime{font-family:var(--mono);font-size:.54rem;color:var(--g4);margin-top:3px}
-.bmsg.usr .btime{text-align:right}
-.btyping{display:flex;gap:4px;padding:10px 14px;align-self:flex-start}
-.btyping span{width:7px;height:7px;background:var(--g4);border-radius:50%;animation:bt 1.2s infinite}
-.btyping span:nth-child(2){animation-delay:.2s}.btyping span:nth-child(3){animation-delay:.4s}
-@keyframes bt{0%,80%,100%{opacity:.2}40%{opacity:1}}
-.bqrow{padding:7px 12px 0;display:flex;flex-wrap:wrap;gap:5px;flex-shrink:0}
-.bq{border:1.5px solid var(--g3);padding:4px 9px;font-family:var(--mono);font-size:.56rem;cursor:pointer;background:var(--w);color:var(--b);transition:all .12s;white-space:nowrap}
-.bq:hover{background:var(--b);color:var(--w);border-color:var(--b)}
-.binp{padding:9px 11px;border-top:1.5px solid var(--g2);display:flex;gap:7px;flex-shrink:0}
-.binp input{flex:1;border:1.5px solid var(--g3);padding:7px 10px;font-family:var(--body);font-size:.8rem;background:var(--w);color:var(--b);outline:none;min-width:0}
-.binp input:focus{border-color:var(--b)}
-.binp button{background:var(--b);color:var(--w);border:none;padding:7px 13px;cursor:pointer;font-family:var(--mono);font-size:.64rem;font-weight:700;letter-spacing:1px;flex-shrink:0}
-.binp button:hover{opacity:.8}
+@keyframes bping{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.5);opacity:.5}}
 
-/* ── ONBOARDING EMPTY STATES ── */
-.ob{background:var(--w);border:2px solid var(--b);padding:32px 28px;box-shadow:var(--sh);max-width:680px;margin:0 auto}
-.ob-icon{font-size:3rem;margin-bottom:12px;display:block;text-align:center}
-.ob-title{font-family:var(--display);font-size:1.6rem;letter-spacing:1px;text-align:center;margin-bottom:8px}
-.ob-desc{font-size:.88rem;color:var(--g5);text-align:center;line-height:1.6;margin-bottom:22px;max-width:480px;margin-left:auto;margin-right:auto}
-.ob-steps{display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
-.ob-step{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:var(--g1);border:1px solid var(--g3)}
-.ob-step-num{width:26px;height:26px;background:var(--b);color:var(--w);font-family:var(--mono);font-size:.68rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-.ob-step-txt{flex:1}
-.ob-step-title{font-weight:700;font-size:.85rem;margin-bottom:2px}
-.ob-step-desc{font-size:.78rem;color:var(--g5);line-height:1.5}
+#bot{
+  position:fixed;bottom:100px;right:28px;
+  width:375px;max-height:570px;
+  background:var(--w);
+  border:2.5px solid var(--b);
+  box-shadow:6px 6px 0 var(--b);
+  z-index:400;display:none;
+  flex-direction:column;overflow:hidden;
+  animation:botIn .22s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes botIn{from{opacity:0;transform:translateY(20px) scale(.94)}to{opacity:1;transform:none}}
+#bot.show{display:flex}
+
+.bhd{
+  background:var(--b);color:var(--w);
+  padding:14px 16px;display:flex;
+  align-items:center;gap:12px;flex-shrink:0;
+  position:relative;
+}
+.bhd::before{
+  content:'✦ ✦ ✦';
+  position:absolute;right:50px;top:50%;
+  transform:translateY(-50%);
+  font-size:.45rem;letter-spacing:4px;
+  color:rgba(255,255,255,.15);
+  pointer-events:none;
+}
+.bav{
+  width:40px;height:40px;border-radius:50%;
+  background:rgba(255,255,255,.12);
+  border:2px solid rgba(255,255,255,.25);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.3rem;flex-shrink:0;
+  position:relative;
+}
+.bav::after{
+  content:'';position:absolute;
+  bottom:0;right:0;
+  width:10px;height:10px;
+  background:#22c55e;border-radius:50%;
+  border:2px solid var(--b);
+}
+.bhi{flex:1;overflow:hidden}
+.bhn{
+  font-family:var(--mono);font-size:.72rem;
+  font-weight:700;letter-spacing:2px;
+  text-transform:uppercase;
+}
+.bhs{
+  font-family:var(--mono);font-size:.58rem;
+  color:rgba(255,255,255,.5);margin-top:1px;
+}
+.bclose{
+  background:rgba(255,255,255,.08);
+  border:1.5px solid rgba(255,255,255,.2);
+  color:rgba(255,255,255,.7);
+  width:28px;height:28px;border-radius:50%;
+  cursor:pointer;font-size:.8rem;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;flex-shrink:0;
+}
+.bclose:hover{background:rgba(255,255,255,.2);color:var(--w)}
+
+.bmsgs{
+  flex:1;overflow-y:auto;
+  padding:14px 12px;
+  display:flex;flex-direction:column;
+  gap:12px;min-height:120px;
+  background:var(--g1);
+  scroll-behavior:smooth;
+}
+.bmsgs::-webkit-scrollbar{width:3px}
+.bmsgs::-webkit-scrollbar-thumb{background:var(--g3);border-radius:4px}
+
+.bmsg{
+  max-width:80%;display:flex;
+  flex-direction:column;
+  animation:msgPop .18s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes msgPop{from{opacity:0;transform:scale(.9) translateY(8px)}to{opacity:1;transform:none}}
+.bmsg.bot{align-self:flex-start}
+.bmsg.usr{align-self:flex-end;align-items:flex-end}
+
+.bmsg.bot .bbub{
+  background:var(--w);color:var(--b);
+  border:2px solid var(--b);
+  border-radius:2px 14px 14px 14px;
+  padding:10px 14px;
+  box-shadow:2px 2px 0 var(--b);
+  font-size:.8rem;line-height:1.55;
+  position:relative;
+}
+.bmsg.usr .bbub{
+  background:var(--b);color:var(--w);
+  border:2px solid var(--b);
+  border-radius:14px 2px 14px 14px;
+  padding:10px 14px;
+  box-shadow:2px 2px 0 rgba(0,0,0,.3);
+  font-size:.8rem;line-height:1.55;
+}
+
+.btime{
+  font-family:var(--mono);font-size:.52rem;
+  color:var(--g4);margin-top:4px;
+  padding:0 4px;
+}
+.bmsg.bot .btime{text-align:left}
+.bmsg.usr .btime{text-align:right}
+
+.btyping{
+  align-self:flex-start;
+  background:var(--w);border:2px solid var(--b);
+  border-radius:2px 14px 14px 14px;
+  padding:12px 18px;display:flex;gap:5px;
+  animation:msgPop .18s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:2px 2px 0 var(--b);
+}
+.btyping span{
+  width:7px;height:7px;
+  background:var(--b);border-radius:50%;
+  animation:tdot 1.2s ease infinite;
+}
+.btyping span:nth-child(2){animation-delay:.2s}
+.btyping span:nth-child(3){animation-delay:.4s}
+@keyframes tdot{0%,80%,100%{transform:scale(.6);opacity:.3}40%{transform:scale(1);opacity:1}}
+
+.bqrow{
+  padding:8px 10px 6px;
+  display:flex;flex-wrap:wrap;gap:5px;
+  flex-shrink:0;background:var(--w);
+  border-top:2px solid var(--b);
+}
+.bq{
+  background:var(--g1);color:var(--b);
+  border:1.5px solid var(--b);
+  padding:5px 10px;
+  font-family:var(--mono);font-size:.56rem;
+  font-weight:700;letter-spacing:.5px;
+  cursor:pointer;white-space:nowrap;
+  transition:all .12s;user-select:none;
+}
+.bq:hover{background:var(--b);color:var(--w);transform:translateY(-1px);box-shadow:0 2px 0 var(--b)}
+.bq:active{transform:translateY(0)}
+
+.binp{
+  padding:10px 12px;border-top:2px solid var(--b);
+  display:flex;gap:8px;align-items:center;
+  flex-shrink:0;background:var(--w);
+}
+.binp input{
+  flex:1;border:2px solid var(--b);
+  padding:8px 12px;
+  font-family:var(--body);font-size:.82rem;
+  background:var(--g1);color:var(--b);
+  outline:none;min-width:0;
+  transition:background .15s;
+}
+.binp input:focus{background:var(--w);box-shadow:inset 0 0 0 1px var(--b)}
+.bsend{
+  background:var(--b);color:var(--w);
+  border:2px solid var(--b);
+  width:38px;height:38px;
+  cursor:pointer;font-size:1rem;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:all .15s;
+  font-weight:700;
+}
+.bsend:hover{background:var(--g6);transform:translateY(-1px);box-shadow:0 3px 0 var(--b)}
+.bsend:active{transform:translateY(0)}
+
+/* ── ONBOARDING CARDS ── */
 .ob-cta{text-align:center}
 .ob-features{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:22px}
 .ob-feat{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--g3);font-size:.78rem}
 .ob-feat-ic{font-size:1rem;flex-shrink:0}
 @media(max-width:600px){.ob-features{grid-template-columns:1fr}.ob{padding:22px 16px}}
+
+/* ── LANGUAGE ── */
+.lang-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-top:6px}
+.lang-card{border:2px solid var(--g3);padding:10px 12px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:8px;user-select:none}
+.lang-card:hover,.lang-card.on{border-color:var(--b);background:var(--g2)}
+.lang-card.on{box-shadow:var(--sh2)}
+.lang-flag{font-size:1.2rem;flex-shrink:0}
+.lang-info{flex:1}
+.lang-name{font-size:.8rem;font-weight:600}
+.lang-native{font-family:var(--mono);font-size:.6rem;color:var(--g5)}
 
 /* ── RESPONSIVE ── */
 @media(max-width:780px){
@@ -273,32 +422,47 @@ button:disabled{opacity:.4;cursor:not-allowed}
 
 <div id="sbo" onclick="closeSB()"></div>
 
-<!-- SIDEBAR -->
 <nav id="sidebar">
   <div class="sb-brand"><span class="nm">SpendWise</span><span class="sb">Expense Tracker</span></div>
   <div class="sb-sec">
     <div class="sb-lbl">Main</div>
-    <div class="sb-lnk on" data-pg="dashboard" onclick="go('dashboard',this)"><span class="ic">◈</span>Dashboard</div>
-    <div class="sb-lnk" data-pg="transactions" onclick="go('transactions',this)"><span class="ic">⊞</span>Transactions<span class="ct" id="txbg">0</span></div>
-    <div class="sb-lnk" data-pg="budget" onclick="go('budget',this)"><span class="ic">◎</span>Budget</div>
-    <div class="sb-lnk" data-pg="goals" onclick="go('goals',this)"><span class="ic">◉</span>Goals</div>
+    <div class="sb-lnk on" data-pg="dashboard" onclick="go('dashboard',this)"><span class="ic">◈</span><span data-i18n="nav_dashboard">Dashboard</span></div>
+    <div class="sb-lnk" data-pg="transactions" onclick="go('transactions',this)"><span class="ic">⊞</span><span data-i18n="nav_transactions">Transactions</span><span class="ct" id="txbg">0</span></div>
+    <div class="sb-lnk" data-pg="budget" onclick="go('budget',this)"><span class="ic">◎</span><span data-i18n="nav_budget">Budget</span></div>
+    <div class="sb-lnk" data-pg="goals" onclick="go('goals',this)"><span class="ic">◉</span><span data-i18n="nav_goals">Goals</span></div>
   </div>
   <div class="sb-sec">
     <div class="sb-lbl">Insights</div>
-    <div class="sb-lnk" data-pg="reports" onclick="go('reports',this)"><span class="ic">▦</span>Reports</div>
-    <div class="sb-lnk" data-pg="recurring" onclick="go('recurring',this)"><span class="ic">↺</span>Recurring</div>
-    <div class="sb-lnk" data-pg="categories" onclick="go('categories',this)"><span class="ic">⊟</span>Categories</div>
+    <div class="sb-lnk" data-pg="reports" onclick="go('reports',this)"><span class="ic">▦</span><span data-i18n="nav_reports">Reports</span></div>
+    <div class="sb-lnk" data-pg="recurring" onclick="go('recurring',this)"><span class="ic">↺</span><span data-i18n="nav_recurring">Recurring</span></div>
+    <div class="sb-lnk" data-pg="categories" onclick="go('categories',this)"><span class="ic">⊟</span><span data-i18n="nav_categories">Categories</span></div>
   </div>
   <div class="sb-sec">
     <div class="sb-lbl">Account</div>
-    <div class="sb-lnk" data-pg="settings" onclick="go('settings',this)"><span class="ic">⊕</span>Settings</div>
+    <div class="sb-lnk" data-pg="settings" onclick="go('settings',this)"><span class="ic">⊕</span><span data-i18n="nav_settings">Settings</span></div>
   </div>
   <div class="sb-foot">
-    <label>Currency</label>
+    <label data-i18n="currency_lbl">Currency</label>
     <select id="cursel" onchange="setCur(this.value)">
       <option value="$">$ USD</option><option value="€">€ EUR</option><option value="£">£ GBP</option>
       <option value="¥">¥ JPY</option><option value="₹" selected>₹ INR</option><option value="₩">₩ KRW</option>
       <option value="A$">A$ AUD</option><option value="C$">C$ CAD</option>
+    </select>
+    <label data-i18n="language_lbl" style="margin-top:10px;display:block">Language</label>
+    <select id="langsel" onchange="setLang(this.value)" style="width:100%;background:var(--sbsbg);border:1px solid var(--sbsbr);color:var(--sbt);padding:7px 10px;font-family:var(--mono);font-size:.7rem;margin-top:2px">
+      <option value="en">🇬🇧 English</option>
+      <option value="hi">🇮🇳 Hindi — हिन्दी</option>
+      <option value="ta">🇮🇳 Tamil — தமிழ்</option>
+      <option value="te">🇮🇳 Telugu — తెలుగు</option>
+      <option value="kn">🇮🇳 Kannada — ಕನ್ನಡ</option>
+      <option value="ml">🇮🇳 Malayalam — മലയാളം</option>
+      <option value="bn">🇮🇳 Bengali — বাংলা</option>
+      <option value="mr">🇮🇳 Marathi — मराठी</option>
+      <option value="es">🇪🇸 Spanish — Español</option>
+      <option value="fr">🇫🇷 French — Français</option>
+      <option value="ar">🇸🇦 Arabic — العربية</option>
+      <option value="zh">🇨🇳 Chinese — 中文</option>
+      <option value="ja">🇯🇵 Japanese — 日本語</option>
     </select>
   </div>
 </nav>
@@ -309,43 +473,43 @@ button:disabled{opacity:.4;cursor:not-allowed}
     <button id="hbg" onclick="toggleSB()"><span></span><span></span><span></span></button>
     <div id="pg-title">Dashboard</div>
     <div class="srch"><span class="si">🔍</span><input type="text" placeholder="Search..." oninput="topSrch(this.value)"></div>
-    <button class="btn prim" onclick="openAdd(null)">＋ Add</button>
+    <button class="btn prim" data-i18n="add_btn" onclick="openAdd(null)">＋ Add</button>
     <button class="iBtn" onclick="expCSV()" title="Export CSV">↓</button>
   </div>
 
   <!-- ═══ DASHBOARD ═══ -->
   <div id="pg-dashboard" class="page show">
     <div class="sgrid">
-      <div class="sbox stripe"><div class="slbl">Income (Month)</div><div class="sval" id="d-inc">$0</div><div class="ssub" id="d-inct">0 transactions</div></div>
-      <div class="sbox"><div class="slbl">Expenses (Month)</div><div class="sval" id="d-exp">$0</div><div class="ssub" id="d-expt">0 transactions</div></div>
-      <div class="sbox hatch"><div class="slbl">Net Balance</div><div class="sval" id="d-net">$0</div><div class="ssub" id="d-nets">—</div></div>
-      <div class="sbox"><div class="slbl">Daily Average</div><div class="sval" id="d-avg">$0</div><div class="ssub">Expenses / day</div></div>
+      <div class="sbox stripe"><div class="slbl" data-i18n="income_month">Income (Month)</div><div class="sval" id="d-inc">₹0</div><div class="ssub" id="d-inct">0 transactions</div></div>
+      <div class="sbox"><div class="slbl" data-i18n="expenses_month">Expenses (Month)</div><div class="sval" id="d-exp">₹0</div><div class="ssub" id="d-expt">0 transactions</div></div>
+      <div class="sbox hatch"><div class="slbl" data-i18n="net_balance">Net Balance</div><div class="sval" id="d-net">₹0</div><div class="ssub" id="d-nets">—</div></div>
+      <div class="sbox"><div class="slbl" data-i18n="daily_avg">Daily Average</div><div class="sval" id="d-avg">₹0</div><div class="ssub" data-i18n="daily_avg_sub">Expenses / day</div></div>
     </div>
     <div class="two">
       <div class="card">
-        <div class="ct">◈ Recent Transactions</div>
+        <div class="ct" data-i18n="recent_tx">◈ Recent Transactions</div>
         <div class="txl" id="d-rec"><div class="emp"><div class="ei">◫</div><p>No transactions yet</p></div></div>
-        <div style="text-align:center;margin-top:13px"><button class="btn sm" onclick="go('transactions',document.querySelector('[data-pg=transactions]'))">View All →</button></div>
+        <div style="text-align:center;margin-top:13px"><button class="btn sm" data-i18n="view_all" onclick="go('transactions',document.querySelector('[data-pg=transactions]'))">View All →</button></div>
       </div>
-      <div class="card"><div class="ct">▦ By Category</div><div class="chbox"><canvas id="ch-cat"></canvas></div></div>
+      <div class="card"><div class="ct" data-i18n="by_category">▦ By Category</div><div class="chbox"><canvas id="ch-cat"></canvas></div></div>
     </div>
     <div class="two">
-      <div class="card"><div class="ct">↗ Monthly Trend</div><div class="chbox"><canvas id="ch-trend"></canvas></div></div>
-      <div class="card"><div class="ct">◎ Top Spending</div><div id="d-top"><div class="emp"><div class="ei">◫</div><p>No data yet</p></div></div></div>
+      <div class="card"><div class="ct" data-i18n="monthly_trend">↗ Monthly Trend</div><div class="chbox"><canvas id="ch-trend"></canvas></div></div>
+      <div class="card"><div class="ct" data-i18n="top_spending">◎ Top Spending</div><div id="d-top"><div class="emp"><div class="ei">◫</div><p>No data yet</p></div></div></div>
     </div>
   </div>
 
   <!-- ═══ TRANSACTIONS ═══ -->
   <div id="pg-transactions" class="page">
-    <div class="sh"><div class="shtit">All Transactions</div><button class="btn prim" onclick="openAdd(null)">＋ Add</button></div>
+    <div class="sh"><div class="shtit" data-i18n="page_transactions">All Transactions</div><button class="btn prim" data-i18n="add_btn" onclick="openAdd(null)">＋ Add</button></div>
     <div class="frow" id="txfrow">
-      <div class="pill on" data-ft="all" onclick="setFt('all',this)">All</div>
-      <div class="pill" data-ft="expense" onclick="setFt('expense',this)">Expenses</div>
-      <div class="pill" data-ft="income" onclick="setFt('income',this)">Income</div>
+      <div class="pill on" data-ft="all" data-i18n="all" onclick="setFt('all',this)">All</div>
+      <div class="pill" data-ft="expense" data-i18n="expense" onclick="setFt('expense',this)">Expenses</div>
+      <div class="pill" data-ft="income" data-i18n="income" onclick="setFt('income',this)">Income</div>
       <select class="fsel" id="f-cat" onchange="renderTx()"><option value="">All Categories</option></select>
       <select class="fsel" id="f-mon" onchange="renderTx()"><option value="">All Months</option></select>
       <input type="text" id="f-srch" class="fsel" placeholder="🔍 Search..." oninput="renderTx()" style="width:150px">
-      <button class="btn sm" onclick="clrF()">Clear</button>
+      <button class="btn sm" data-i18n="clear" onclick="clrF()">Clear</button>
     </div>
     <div class="card" style="padding:0"><div class="txl" id="txlist" style="padding:0 18px"><div class="emp"><div class="ei">◫</div><p>No transactions yet</p></div></div></div>
     <div id="txct" style="margin-top:9px;font-family:var(--mono);font-size:.63rem;color:var(--g5);text-align:right"></div>
@@ -353,16 +517,16 @@ button:disabled{opacity:.4;cursor:not-allowed}
 
   <!-- ═══ BUDGET ═══ -->
   <div id="pg-budget" class="page">
-    <div class="sh"><div class="shtit">Budget Planner</div><button class="btn prim" onclick="openBud()">＋ Set Budget</button></div>
+    <div class="sh"><div class="shtit" data-i18n="page_budget">Budget Planner</div><button class="btn prim" data-i18n="set_budget" onclick="openBud()">＋ Set Budget</button></div>
     <div class="two">
       <div class="card"><div class="ct">◎ Budgets</div><div id="budlist"><div class="emp"><div class="ei">◫</div><p>No budgets set</p></div></div></div>
       <div class="card">
         <div class="ct">▦ Overview</div>
         <div class="chbox" style="height:195px"><canvas id="ch-bud"></canvas></div>
         <div style="margin-top:13px;display:flex;flex-direction:column;gap:7px">
-          <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.66rem;color:var(--g5)"><span>Total Budgeted</span><strong id="bt">$0</strong></div>
-          <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.66rem;color:var(--g5)"><span>Total Spent</span><strong id="bs">$0</strong></div>
-          <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.66rem;color:var(--g5)"><span>Remaining</span><strong id="br">$0</strong></div>
+          <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.66rem;color:var(--g5)"><span data-i18n="total_budgeted">Total Budgeted</span><strong id="bt">₹0</strong></div>
+          <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.66rem;color:var(--g5)"><span data-i18n="total_spent">Total Spent</span><strong id="bs">₹0</strong></div>
+          <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.66rem;color:var(--g5)"><span data-i18n="remaining">Remaining</span><strong id="br">₹0</strong></div>
         </div>
       </div>
     </div>
@@ -370,18 +534,18 @@ button:disabled{opacity:.4;cursor:not-allowed}
 
   <!-- ═══ GOALS ═══ -->
   <div id="pg-goals" class="page">
-    <div class="sh"><div class="shtit">Savings Goals</div><button class="btn prim" onclick="openGoal()">＋ New Goal</button></div>
+    <div class="sh"><div class="shtit" data-i18n="page_goals">Savings Goals</div><button class="btn prim" data-i18n="new_goal" onclick="openGoal()">＋ New Goal</button></div>
     <div id="glist" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:14px"><div class="emp" style="grid-column:1/-1"><div class="ei">◉</div><p>No goals yet</p></div></div>
   </div>
 
   <!-- ═══ REPORTS ═══ -->
   <div id="pg-reports" class="page">
     <div class="sh">
-      <div class="shtit">Reports & Analytics</div>
+      <div class="shtit" data-i18n="page_reports">Reports & Analytics</div>
       <div style="display:flex;gap:7px" id="rppills">
-        <div class="pill on" data-rp="month" onclick="setRP('month',this)">Month</div>
-        <div class="pill" data-rp="quarter" onclick="setRP('quarter',this)">Quarter</div>
-        <div class="pill" data-rp="year" onclick="setRP('year',this)">Year</div>
+        <div class="pill on" data-rp="month" data-i18n="month_lbl" onclick="setRP('month',this)">Month</div>
+        <div class="pill" data-rp="quarter" data-i18n="quarter_lbl" onclick="setRP('quarter',this)">Quarter</div>
+        <div class="pill" data-rp="year" data-i18n="year_lbl" onclick="setRP('year',this)">Year</div>
       </div>
     </div>
     <div class="sgrid" id="rpstat"></div>
@@ -401,12 +565,12 @@ button:disabled{opacity:.4;cursor:not-allowed}
 
   <!-- ═══ RECURRING ═══ -->
   <div id="pg-recurring" class="page">
-    <div class="sh"><div class="shtit">Recurring Expenses</div><button class="btn prim" onclick="openRec()">＋ Add Recurring</button></div>
+    <div class="sh"><div class="shtit" data-i18n="page_recurring">Recurring Expenses</div><button class="btn prim" data-i18n="add_recurring" onclick="openRec()">＋ Add Recurring</button></div>
     <div class="card" style="margin-bottom:16px">
       <div style="display:flex;gap:13px;flex-wrap:wrap">
-        <div style="flex:1;min-width:120px;border:2px solid var(--b);padding:13px"><div class="slbl">Monthly</div><div style="font-family:var(--display);font-size:1.65rem" id="recm">$0</div></div>
-        <div style="flex:1;min-width:120px;border:2px solid var(--b);padding:13px"><div class="slbl">Annual</div><div style="font-family:var(--display);font-size:1.65rem" id="reca">$0</div></div>
-        <div style="flex:1;min-width:120px;border:2px solid var(--b);padding:13px"><div class="slbl">Active</div><div style="font-family:var(--display);font-size:1.65rem" id="recct">0</div></div>
+        <div style="flex:1;min-width:120px;border:2px solid var(--b);padding:13px"><div class="slbl" data-i18n="monthly">Monthly</div><div style="font-family:var(--display);font-size:1.65rem" id="recm">₹0</div></div>
+        <div style="flex:1;min-width:120px;border:2px solid var(--b);padding:13px"><div class="slbl" data-i18n="annual">Annual</div><div style="font-family:var(--display);font-size:1.65rem" id="reca">₹0</div></div>
+        <div style="flex:1;min-width:120px;border:2px solid var(--b);padding:13px"><div class="slbl" data-i18n="active">Active</div><div style="font-family:var(--display);font-size:1.65rem" id="recct">0</div></div>
       </div>
     </div>
     <div id="reclist" style="display:flex;flex-direction:column;gap:10px"><div class="emp"><div class="ei">↺</div><p>No recurring expenses</p></div></div>
@@ -414,7 +578,7 @@ button:disabled{opacity:.4;cursor:not-allowed}
 
   <!-- ═══ CATEGORIES ═══ -->
   <div id="pg-categories" class="page">
-    <div class="sh"><div class="shtit">Categories</div><button class="btn prim" onclick="openCat()">＋ New Category</button></div>
+    <div class="sh"><div class="shtit" data-i18n="page_categories">Categories</div><button class="btn prim" data-i18n="new_category" onclick="openCat()">＋ New Category</button></div>
     <div id="catgrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:13px"></div>
   </div>
 
@@ -422,10 +586,32 @@ button:disabled{opacity:.4;cursor:not-allowed}
   <div id="pg-settings" class="page">
     <div style="font-family:var(--display);font-size:1.5rem;letter-spacing:1px;margin-bottom:18px">Settings</div>
 
+    <!-- LANGUAGE CARD -->
+    <div class="card" style="max-width:700px;margin-bottom:16px">
+      <div class="sg">
+        <div class="sghead" data-i18n="language">🌐 Language</div>
+        <div class="lang-grid" id="lang-grid">
+          <div class="lang-card on" data-lang="en" onclick="setLang('en',this)"><span class="lang-flag">🇬🇧</span><div class="lang-info"><div class="lang-name">English</div><div class="lang-native">English</div></div></div>
+          <div class="lang-card" data-lang="hi" onclick="setLang('hi',this)"><span class="lang-flag">🇮🇳</span><div class="lang-info"><div class="lang-name">Hindi</div><div class="lang-native">हिन्दी</div></div></div>
+          <div class="lang-card" data-lang="ta" onclick="setLang('ta',this)"><span class="lang-flag">🇮🇳</span><div class="lang-info"><div class="lang-name">Tamil</div><div class="lang-native">தமிழ்</div></div></div>
+          <div class="lang-card" data-lang="te" onclick="setLang('te',this)"><span class="lang-flag">🇮🇳</span><div class="lang-info"><div class="lang-name">Telugu</div><div class="lang-native">తెలుగు</div></div></div>
+          <div class="lang-card" data-lang="kn" onclick="setLang('kn',this)"><span class="lang-flag">🇮🇳</span><div class="lang-info"><div class="lang-name">Kannada</div><div class="lang-native">ಕನ್ನಡ</div></div></div>
+          <div class="lang-card" data-lang="ml" onclick="setLang('ml',this)"><span class="lang-flag">🇮🇳</span><div class="lang-info"><div class="lang-name">Malayalam</div><div class="lang-native">മലയാളം</div></div></div>
+          <div class="lang-card" data-lang="bn" onclick="setLang('bn',this)"><span class="lang-flag">🇮🇳</span><div class="lang-info"><div class="lang-name">Bengali</div><div class="lang-native">বাংলা</div></div></div>
+          <div class="lang-card" data-lang="mr" onclick="setLang('mr',this)"><span class="lang-flag">🇮🇳</span><div class="lang-info"><div class="lang-name">Marathi</div><div class="lang-native">मराठी</div></div></div>
+          <div class="lang-card" data-lang="es" onclick="setLang('es',this)"><span class="lang-flag">🇪🇸</span><div class="lang-info"><div class="lang-name">Spanish</div><div class="lang-native">Español</div></div></div>
+          <div class="lang-card" data-lang="fr" onclick="setLang('fr',this)"><span class="lang-flag">🇫🇷</span><div class="lang-info"><div class="lang-name">French</div><div class="lang-native">Français</div></div></div>
+          <div class="lang-card" data-lang="ar" onclick="setLang('ar',this)"><span class="lang-flag">🇸🇦</span><div class="lang-info"><div class="lang-name">Arabic</div><div class="lang-native">العربية</div></div></div>
+          <div class="lang-card" data-lang="zh" onclick="setLang('zh',this)"><span class="lang-flag">🇨🇳</span><div class="lang-info"><div class="lang-name">Chinese</div><div class="lang-native">中文</div></div></div>
+          <div class="lang-card" data-lang="ja" onclick="setLang('ja',this)"><span class="lang-flag">🇯🇵</span><div class="lang-info"><div class="lang-name">Japanese</div><div class="lang-native">日本語</div></div></div>
+        </div>
+      </div>
+    </div>
+
     <!-- THEME PICKER CARD -->
     <div class="card" style="max-width:700px;margin-bottom:16px">
       <div class="sg">
-        <div class="sghead">🎨 Theme Style</div>
+        <div class="sghead" data-i18n="theme_style">🎨 Theme Style</div>
         <div class="tgrid" id="tgrid">
           <div class="tcrd on" data-t="" onclick="setTheme('',this)"><div class="tswatch" style="background:linear-gradient(135deg,#000 50%,#fff 50%)">⬛</div><div class="tname">Classic<br>B&amp;W</div></div>
           <div class="tcrd" data-t="t-dark" onclick="setTheme('t-dark',this)"><div class="tswatch" style="background:linear-gradient(135deg,#0a0a0a 50%,#1c1c1c 50%)">🌑</div><div class="tname">Dark<br>Mode</div></div>
@@ -441,21 +627,21 @@ button:disabled{opacity:.4;cursor:not-allowed}
     <!-- PREFERENCES CARD -->
     <div class="card" style="max-width:700px">
       <div class="sg">
-        <div class="sghead">Preferences</div>
-        <div class="sr"><div><div class="sl">Budget Alerts</div><div class="sd">Warn when 80% of budget used</div></div><div class="tog on" id="tog-al" onclick="togglePref('alerts',this)"></div></div>
-        <div class="sr"><div><div class="sl">Show Decimals</div><div class="sd">Show cents in all amounts</div></div><div class="tog on" id="tog-dec" onclick="togglePref('decimals',this)"></div></div>
-        <div class="sr"><div><div class="sl">Compact Rows</div><div class="sd">Denser transaction list</div></div><div class="tog" id="tog-cmp" onclick="togglePref('compact',this)"></div></div>
+        <div class="sghead" data-i18n="preferences">Preferences</div>
+        <div class="sr"><div><div class="sl" data-i18n="budget_alerts">Budget Alerts</div><div class="sd">Warn when 80% of budget used</div></div><div class="tog on" id="tog-al" onclick="togglePref('alerts',this)"></div></div>
+        <div class="sr"><div><div class="sl" data-i18n="show_decimals">Show Decimals</div><div class="sd">Show cents in all amounts</div></div><div class="tog on" id="tog-dec" onclick="togglePref('decimals',this)"></div></div>
+        <div class="sr"><div><div class="sl" data-i18n="compact_rows">Compact Rows</div><div class="sd">Denser transaction list</div></div><div class="tog" id="tog-cmp" onclick="togglePref('compact',this)"></div></div>
       </div>
       <div class="sg">
-        <div class="sghead">Data</div>
-        <div class="sr"><div><div class="sl">Export CSV</div><div class="sd">Download all transactions</div></div><button class="btn sm" onclick="expCSV()">Export</button></div>
-        <div class="sr"><div><div class="sl">Backup JSON</div><div class="sd">Full data backup</div></div><button class="btn sm" onclick="backupJSON()">Backup</button></div>
-        <div class="sr"><div><div class="sl">Import</div><div class="sd">Restore from CSV or JSON</div></div><button class="btn sm" onclick="document.getElementById('impf').click()">Import</button></div>
-        <div class="sr"><div><div class="sl">Load Demo Data</div><div class="sd">Fill with sample data to explore</div></div><button class="btn sm" onclick="loadDemo()">Load Demo</button></div>
-        <div class="sr"><div><div class="sl">Clear All Data</div><div class="sd">Delete everything permanently</div></div><button class="btn sm danger" onclick="clearAll()">Clear All</button></div>
+        <div class="sghead" data-i18n="data_lbl">Data</div>
+        <div class="sr"><div><div class="sl" data-i18n="export_csv_lbl">Export CSV</div><div class="sd">Download all transactions</div></div><button class="btn sm" data-i18n="export" onclick="expCSV()">Export</button></div>
+        <div class="sr"><div><div class="sl" data-i18n="backup_json_lbl">Backup JSON</div><div class="sd">Full data backup</div></div><button class="btn sm" data-i18n="backup" onclick="backupJSON()">Backup</button></div>
+        <div class="sr"><div><div class="sl" data-i18n="import_lbl">Import</div><div class="sd">Restore from CSV or JSON</div></div><button class="btn sm" data-i18n="import" onclick="document.getElementById('impf').click()">Import</button></div>
+        <div class="sr"><div><div class="sl" data-i18n="load_demo_lbl">Load Demo Data</div><div class="sd">Fill with sample data to explore</div></div><button class="btn sm" data-i18n="load_demo" onclick="loadDemo()">Load Demo</button></div>
+        <div class="sr"><div><div class="sl" data-i18n="clear_all_lbl">Clear All Data</div><div class="sd">Delete everything permanently</div></div><button class="btn sm danger" data-i18n="clear_all" onclick="clearAll()">Clear All</button></div>
       </div>
       <div class="sg">
-        <div class="sghead">About</div>
+        <div class="sghead" data-i18n="about_lbl">About</div>
         <div class="sr"><div><div class="sl">SpendWise v4.0</div><div class="sd">Works offline · Installable · AI assistant included · Data stored locally</div></div></div>
       </div>
     </div>
@@ -469,47 +655,47 @@ button:disabled{opacity:.4;cursor:not-allowed}
     <div class="mhd"><div class="mtit" id="m-add-t">Add Transaction</div><button class="iBtn" onclick="closeM('m-add')">✕</button></div>
     <div class="mbd">
       <div class="tabrow">
-        <div class="tab on" id="tab-exp" onclick="setType('expense')">Expense</div>
-        <div class="tab" id="tab-inc" onclick="setType('income')">Income</div>
+        <div class="tab on" id="tab-exp" data-i18n="expense" onclick="setType('expense')">Expense</div>
+        <div class="tab" id="tab-inc" data-i18n="income" onclick="setType('income')">Income</div>
       </div>
       <div class="fgrid">
-        <div class="fg"><label>Amount *</label><input type="number" id="f-amt" placeholder="0.00" min="0" step="0.01"></div>
-        <div class="fg"><label>Date *</label><input type="date" id="f-date"></div>
-        <div class="fg full"><label>Description <span style="font-weight:400;color:var(--g4)">(optional)</span></label><input type="text" id="f-desc" placeholder="What was this for? (optional)"></div>
-        <div class="fg"><label>Category</label><select id="f-cat2"></select></div>
-        <div class="fg"><label>Payment Method</label><select id="f-meth"><option>Cash</option><option>Credit Card</option><option>Debit Card</option><option>Bank Transfer</option><option>Digital Wallet</option><option>Cheque</option><option>Crypto</option></select></div>
-        <div class="fg full"><label>Tags</label><div class="tagwrap" id="tagwrap"></div></div>
-        <div class="fg full"><label>Notes</label><textarea id="f-notes" placeholder="Optional notes..."></textarea></div>
+        <div class="fg"><label data-i18n="amount">Amount</label><input type="number" id="f-amt" placeholder="0.00" min="0" step="0.01"></div>
+        <div class="fg"><label data-i18n="date">Date</label><input type="date" id="f-date"></div>
+        <div class="fg full"><label><span data-i18n="description">Description</span> <span style="font-weight:400;color:var(--g4)">(optional)</span></label><input type="text" id="f-desc" placeholder="What was this for? (optional)"></div>
+        <div class="fg"><label data-i18n="category">Category</label><select id="f-cat2"></select></div>
+        <div class="fg"><label data-i18n="payment_method">Payment Method</label><select id="f-meth"><option>Cash</option><option>Credit Card</option><option>Debit Card</option><option>Bank Transfer</option><option>Digital Wallet</option><option>Cheque</option><option>Crypto</option></select></div>
+        <div class="fg full"><label data-i18n="tags">Tags</label><div class="tagwrap" id="tagwrap"></div></div>
+        <div class="fg full"><label data-i18n="notes">Notes</label><textarea id="f-notes" placeholder="Optional notes..."></textarea></div>
       </div>
       <input type="hidden" id="f-id"><input type="hidden" id="f-type" value="expense">
     </div>
-    <div class="mft"><button class="btn" onclick="closeM('m-add')">Cancel</button><button class="btn prim" onclick="saveTx()">Save Transaction</button></div>
+    <div class="mft"><button class="btn" data-i18n="cancel" onclick="closeM('m-add')">Cancel</button><button class="btn prim" data-i18n="save_tx" onclick="saveTx()">Save Transaction</button></div>
   </div>
 </div>
 
 <!-- ══ MODAL: BUDGET ══ -->
 <div class="ov" id="m-bud">
   <div class="modal">
-    <div class="mhd"><div class="mtit">Set Budget</div><button class="iBtn" onclick="closeM('m-bud')">✕</button></div>
+    <div class="mhd"><div class="mtit" data-i18n="set_budget_btn">Set Budget</div><button class="iBtn" onclick="closeM('m-bud')">✕</button></div>
     <div class="mbd"><div class="fgrid"><div class="fg"><label>Category</label><select id="fb-cat"></select></div><div class="fg"><label>Monthly Limit</label><input type="number" id="fb-amt" placeholder="0.00" min="0" step="0.01"></div></div></div>
-    <div class="mft"><button class="btn" onclick="closeM('m-bud')">Cancel</button><button class="btn prim" onclick="saveBud()">Set Budget</button></div>
+    <div class="mft"><button class="btn" data-i18n="cancel" onclick="closeM('m-bud')">Cancel</button><button class="btn prim" data-i18n="set_budget_btn" onclick="saveBud()">Set Budget</button></div>
   </div>
 </div>
 
 <!-- ══ MODAL: GOAL ══ -->
 <div class="ov" id="m-goal">
   <div class="modal">
-    <div class="mhd"><div class="mtit">New Savings Goal</div><button class="iBtn" onclick="closeM('m-goal')">✕</button></div>
+    <div class="mhd"><div class="mtit" data-i18n="new_goal_lbl">New Savings Goal</div><button class="iBtn" onclick="closeM('m-goal')">✕</button></div>
     <div class="mbd">
       <div class="fgrid">
         <div class="fg full"><label>Goal Name *</label><input type="text" id="fg-nm" placeholder="e.g. Emergency Fund..."></div>
         <div class="fg"><label>Target Amount *</label><input type="number" id="fg-tg" placeholder="0.00" min="0" step="0.01"></div>
         <div class="fg"><label>Already Saved</label><input type="number" id="fg-sv" placeholder="0.00" min="0" step="0.01"></div>
         <div class="fg"><label>Target Date</label><input type="date" id="fg-dt"></div>
-        <div class="fg"><label>Icon</label><select id="fg-ic"><option value="🏠">🏠 Home</option><option value="✈️">✈️ Travel</option><option value="🚗">🚗 Car</option><option value="💻">💻 Tech</option><option value="🎓">🎓 Education</option><option value="🏥">🏥 Medical</option><option value="💰">💰 Emergency</option><option value="🎉">🎉 Event</option><option value="📦">📦 Other</option></select></div>
+        <div class="fg"><label data-i18n="icon_lbl">Icon</label><select id="fg-ic"><option value="🏠">🏠 Home</option><option value="✈️">✈️ Travel</option><option value="🚗">🚗 Car</option><option value="💻">💻 Tech</option><option value="🎓">🎓 Education</option><option value="🏥">🏥 Medical</option><option value="💰">💰 Emergency</option><option value="🎉">🎉 Event</option><option value="📦">📦 Other</option></select></div>
       </div>
     </div>
-    <div class="mft"><button class="btn" onclick="closeM('m-goal')">Cancel</button><button class="btn prim" onclick="saveGoal()">Create Goal</button></div>
+    <div class="mft"><button class="btn" data-i18n="cancel" onclick="closeM('m-goal')">Cancel</button><button class="btn prim" data-i18n="create_goal" onclick="saveGoal()">Create Goal</button></div>
   </div>
 </div>
 
@@ -518,38 +704,38 @@ button:disabled{opacity:.4;cursor:not-allowed}
   <div class="modal">
     <div class="mhd"><div class="mtit" id="m-gadd-t">Add Savings</div><button class="iBtn" onclick="closeM('m-gadd')">✕</button></div>
     <div class="mbd"><div class="fg"><label>Amount to Add</label><input type="number" id="fga-amt" placeholder="0.00" min="0" step="0.01"></div><input type="hidden" id="fga-id"></div>
-    <div class="mft"><button class="btn" onclick="closeM('m-gadd')">Cancel</button><button class="btn prim" onclick="doAddGoal()">Add Savings</button></div>
+    <div class="mft"><button class="btn" data-i18n="cancel" onclick="closeM('m-gadd')">Cancel</button><button class="btn prim" onclick="doAddGoal()">Add Savings</button></div>
   </div>
 </div>
 
 <!-- ══ MODAL: RECURRING ══ -->
 <div class="ov" id="m-rec">
   <div class="modal">
-    <div class="mhd"><div class="mtit">Add Recurring</div><button class="iBtn" onclick="closeM('m-rec')">✕</button></div>
+    <div class="mhd"><div class="mtit" data-i18n="add_recurring_lbl">Add Recurring</div><button class="iBtn" onclick="closeM('m-rec')">✕</button></div>
     <div class="mbd">
       <div class="fgrid">
-        <div class="fg full"><label>Name *</label><input type="text" id="fr-nm" placeholder="e.g. Netflix, Rent..."></div>
-        <div class="fg"><label>Amount *</label><input type="number" id="fr-amt" placeholder="0.00" min="0" step="0.01"></div>
-        <div class="fg"><label>Frequency</label><select id="fr-freq"><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly" selected>Monthly</option><option value="quarterly">Quarterly</option><option value="yearly">Yearly</option></select></div>
+        <div class="fg full"><label data-i18n="rec_name">Name</label><input type="text" id="fr-nm" placeholder="e.g. Netflix, Rent..."></div>
+        <div class="fg"><label data-i18n="amount">Amount</label><input type="number" id="fr-amt" placeholder="0.00" min="0" step="0.01"></div>
+        <div class="fg"><label data-i18n="frequency">Frequency</label><select id="fr-freq"><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly" selected>Monthly</option><option value="quarterly">Quarterly</option><option value="yearly">Yearly</option></select></div>
         <div class="fg"><label>Category</label><select id="fr-cat"></select></div>
-        <div class="fg"><label>Next Due Date</label><input type="date" id="fr-dt"></div>
+        <div class="fg"><label data-i18n="due_date">Next Due Date</label><input type="date" id="fr-dt"></div>
       </div>
     </div>
-    <div class="mft"><button class="btn" onclick="closeM('m-rec')">Cancel</button><button class="btn prim" onclick="saveRec()">Add Recurring</button></div>
+    <div class="mft"><button class="btn" data-i18n="cancel" onclick="closeM('m-rec')">Cancel</button><button class="btn prim" data-i18n="add_recurring_lbl" onclick="saveRec()">Add Recurring</button></div>
   </div>
 </div>
 
 <!-- ══ MODAL: CATEGORY ══ -->
 <div class="ov" id="m-cat">
   <div class="modal">
-    <div class="mhd"><div class="mtit">New Category</div><button class="iBtn" onclick="closeM('m-cat')">✕</button></div>
+    <div class="mhd"><div class="mtit" data-i18n="new_category_lbl">New Category</div><button class="iBtn" onclick="closeM('m-cat')">✕</button></div>
     <div class="mbd">
       <div class="fgrid">
-        <div class="fg full"><label>Name *</label><input type="text" id="fc-nm" placeholder="e.g. Pets, Hobbies..."></div>
+        <div class="fg full"><label data-i18n="cat_name">Name</label><input type="text" id="fc-nm" placeholder="e.g. Pets, Hobbies..."></div>
         <div class="fg"><label>Icon</label><select id="fc-ic"><option value="🍔">🍔 Food</option><option value="🚗">🚗 Transport</option><option value="🎮">🎮 Entertainment</option><option value="🏥">🏥 Health</option><option value="👗">👗 Clothing</option><option value="📚">📚 Education</option><option value="🏠">🏠 Housing</option><option value="💡">💡 Utilities</option><option value="🐾">🐾 Pets</option><option value="✈️">✈️ Travel</option><option value="🎁">🎁 Gifts</option><option value="💼">💼 Work</option><option value="🎨">🎨 Hobbies</option><option value="📦">📦 Other</option></select></div>
       </div>
     </div>
-    <div class="mft"><button class="btn" onclick="closeM('m-cat')">Cancel</button><button class="btn prim" onclick="saveCat()">Add Category</button></div>
+    <div class="mft"><button class="btn" data-i18n="cancel" onclick="closeM('m-cat')">Cancel</button><button class="btn prim" data-i18n="add_category_btn" onclick="saveCat()">Add Category</button></div>
   </div>
 </div>
 
@@ -561,28 +747,30 @@ button:disabled{opacity:.4;cursor:not-allowed}
   <button class="iBtn" style="background:none;border-color:#444;color:var(--w)" onclick="dimInst()">✕</button>
 </div>
 
-<!-- AI BOT -->
+<!-- AI BOT — PENNY -->
 <button id="bot-btn" onclick="toggleBot()" title="Ask Penny AI">🤖<div class="bpulse"></div></button>
 <div id="bot">
   <div class="bhd">
     <div class="bav">🤖</div>
-    <div class="bhi"><div class="bhn">Penny — AI Assistant</div><div class="bhs">● Online · Knows your finances</div></div>
+    <div class="bhi">
+      <div class="bhn">Penny AI</div>
+      <div class="bhs">Online · Your finance assistant</div>
+    </div>
     <button class="bclose" onclick="toggleBot()">✕</button>
   </div>
   <div class="bmsgs" id="bmsgs"></div>
   <div class="bqrow" id="bqrow">
-    <div class="bq" onclick="askBot('What is my balance this month?')">Balance?</div>
+    <div class="bq" onclick="askBot('What is my balance?')">💰 Balance</div>
     <div class="bq" onclick="askBot('Tell me about Goals')">🏆 Goals</div>
     <div class="bq" onclick="askBot('Explain the Budget page')">🎯 Budget</div>
     <div class="bq" onclick="askBot('What is Recurring?')">🔁 Recurring</div>
     <div class="bq" onclick="askBot('How does Reports work?')">📈 Reports</div>
-    <div class="bq" onclick="askBot('Where am I spending the most?')">Top Spend?</div>
-    <div class="bq" onclick="askBot('Show my savings goals')">My Goals?</div>
+    <div class="bq" onclick="askBot('Where am I spending the most?')">🔥 Top Spend</div>
     <div class="bq" onclick="askBot('Give me a money saving tip')">💡 Tip</div>
   </div>
   <div class="binp">
-    <input type="text" id="binput" placeholder="Ask about your finances..." onkeydown="if(event.key==='Enter')sendBot()">
-    <button onclick="sendBot()">Send</button>
+    <input type="text" id="binput" placeholder="Ask Penny anything..." onkeydown="if(event.key==='Enter')sendBot()">
+    <button class="bsend" onclick="sendBot()">↑</button>
   </div>
 </div>
 
@@ -623,11 +811,12 @@ let DB = {
   transactions:[],budgets:{},goals:[],recurring:[],
   categories:JSON.parse(JSON.stringify(DEF_EXP_CATS)),
   currency:'₹',prefs:{alerts:true,decimals:true,compact:false},
-  txFt:'all',rpP:'month',theme:'',
+  txFt:'all',rpP:'month',theme:'',lang:'en',
 };
 
 function save(){try{localStorage.setItem('sw5',JSON.stringify(DB))}catch(e){}}
-function load(){try{const r=localStorage.getItem('sw5');if(r){const p=JSON.parse(r);DB=Object.assign({},DB,p);if(!DB.categories||!DB.categories.length)DB.categories=JSON.parse(JSON.stringify(DEF_EXP_CATS))}}catch(e){}}
+function load(){try{const r=localStorage.getItem('sw5');if(r){const p=JSON.parse(r);DB=Object.assign({},DB,p);if(!DB.categories||!DB.categories.length)DB.categories=JSON.parse(JSON.stringify(DEF_EXP_CATS));}}catch(e){}}
+
 
 // ════════════════════════════════════════════════════
 //  UTILS
@@ -655,7 +844,7 @@ function go(page,lnk){
   G('pg-'+page).classList.add('show');
   if(lnk)lnk.classList.add('on');
   else{const l=document.querySelector(`.sb-lnk[data-pg="${page}"]`);if(l)l.classList.add('on')}
-  G('pg-title').textContent=TITLES[page]||page;
+  G('pg-title').textContent=T('page_'+page)||TITLES[page]||page;
   closeSB();
   if(page==='dashboard')renderDash();
   else if(page==='transactions')renderTx();
@@ -664,12 +853,14 @@ function go(page,lnk){
   else if(page==='reports')renderReports();
   else if(page==='recurring')renderRec();
   else if(page==='categories')renderCats();
-  else if(page==='settings')syncThemePicker();
+  else if(page==='settings'){syncThemePicker();syncLangCards();}
+  // Re-apply language translations to the freshly rendered page
+  if(currentLang && currentLang!=='en') applyLang();
 }
 
 function toggleSB(){G('sidebar').classList.toggle('open');G('sbo').style.display=G('sidebar').classList.contains('open')?'block':'none'}
 function closeSB(){G('sidebar').classList.remove('open');G('sbo').style.display='none'}
-function openM(id){G(id).classList.add('show')}
+function openM(id){G(id).classList.add('show');if(currentLang!=='en')applyLang();}
 function closeM(id){G(id).classList.remove('show')}
 function badge(){G('txbg').textContent=DB.transactions.length}
 
@@ -723,6 +914,8 @@ function saveTx(){
   if(eid){const i=DB.transactions.findIndex(t=>t.id===eid);if(i>=0)DB.transactions[i]=tx;toast('✓ Updated')}
   else{DB.transactions.unshift(tx);toast('✓ Transaction added')}
   save();closeM('m-add');badge();renderDash();
+  // Also refresh tx list if currently on transactions page
+  if(G('pg-transactions').classList.contains('show')) renderTx();
   if(tx.type==='expense'&&DB.prefs.alerts&&DB.budgets[tx.category]){
     const lim=DB.budgets[tx.category];
     const sp=mTx().filter(t=>t.type==='expense'&&t.category===tx.category).reduce((s,t)=>s+t.amount,0);
@@ -734,7 +927,9 @@ function saveTx(){
 function delTx(id){
   if(!confirm('Delete this transaction?'))return;
   DB.transactions=DB.transactions.filter(t=>t.id!==id);
-  save();badge();renderDash();renderTx();toast('Deleted');
+  save();badge();renderDash();
+  if(G('pg-transactions').classList.contains('show'))renderTx();
+  toast('✓ Deleted');
 }
 
 // ════════════════════════════════════════════════════
@@ -794,7 +989,16 @@ function renderTop(list){
 //  TRANSACTIONS
 // ════════════════════════════════════════════════════
 function setFt(type,btn){DB.txFt=type;document.querySelectorAll('#txfrow .pill').forEach(p=>p.classList.remove('on'));btn.classList.add('on');renderTx()}
-function clrF(){DB.txFt='all';document.querySelectorAll('#txfrow .pill').forEach(p=>p.classList.toggle('on',p.dataset.ft==='all'));G('f-cat').value='';G('f-mon').value='';G('f-srch').value='';renderTx()}
+function clrF(){
+  DB.txFt='all';
+  document.querySelectorAll('#txfrow .pill').forEach(p=>{
+    p.classList.toggle('on', p.dataset.ft==='all');
+  });
+  G('f-cat').value='';
+  G('f-mon').value='';
+  G('f-srch').value='';
+  renderTx();
+}
 function topSrch(v){if(v.length>1){go('transactions',document.querySelector('[data-pg="transactions"]'));setTimeout(()=>{G('f-srch').value=v;renderTx()},30)}}
 
 function renderTx(){
@@ -867,7 +1071,7 @@ function renderBud(){
 // ════════════════════════════════════════════════════
 //  GOALS
 // ════════════════════════════════════════════════════
-function openGoal(){['fg-nm','fg-tg','fg-sv','fg-dt'].forEach(id=>G(id).value='');openM('m-goal')}
+function openGoal(){['fg-nm','fg-tg','fg-sv','fg-dt'].forEach(id=>G(id).value='');const ic=G('fg-ic');if(ic)ic.selectedIndex=0;openM('m-goal')}
 function saveGoal(){const nm=G('fg-nm').value.trim();const tg=parseFloat(G('fg-tg').value);const sv=parseFloat(G('fg-sv').value)||0;if(!nm){toast('⚠ Enter a name');return}if(!tg||tg<=0){toast('⚠ Enter a target');return}DB.goals.push({id:uid(),name:nm,target:tg,current:sv,date:G('fg-dt').value,icon:G('fg-ic').value,createdAt:new Date().toISOString()});save();closeM('m-goal');renderGoals();toast('✓ Goal created')}
 function openAddToGoal(id){const g=DB.goals.find(g=>g.id===id);if(!g)return;G('m-gadd-t').textContent='Add to: '+g.name;G('fga-id').value=id;G('fga-amt').value='';openM('m-gadd')}
 function doAddGoal(){const id=G('fga-id').value;const amt=parseFloat(G('fga-amt').value);if(!amt||amt<=0){toast('⚠ Enter a valid amount');return}const g=DB.goals.find(g=>g.id===id);if(g){g.current=Math.min(g.current+amt,g.target);save();closeM('m-gadd');renderGoals();toast('✓ Added '+fmt(amt))}}
@@ -911,8 +1115,8 @@ function renderReports(){
   const tx=rpTx();
   if(!DB.transactions.length){
     G('rpstat').innerHTML='';
-    G('ch-line').getContext('2d').clearRect(0,0,9999,9999);
-    G('ch-pie').getContext('2d').clearRect(0,0,9999,9999);
+    try{if(cLine){cLine.destroy();cLine=null}}catch(e){}
+    try{if(cPie){cPie.destroy();cPie=null}}catch(e){}
     G('hmgrid').innerHTML='';
     G('rptl').innerHTML=`<div class="ob" style="border:none;box-shadow:none;background:transparent;padding:8px 0">
       <span class="ob-icon">📈</span>
@@ -1023,7 +1227,28 @@ function expCSV(){const rows=[['Date','Description','Amount','Type','Category','
 function backupJSON(){dl(JSON.stringify(DB,null,2),'spendwise-backup-'+today()+'.json','application/json');toast('✓ Backup downloaded')}
 function dl(c,f,t){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:t}));a.download=f;a.click()}
 function importFile(inp){const file=inp.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{try{if(file.name.endsWith('.json')){const p=JSON.parse(e.target.result);DB=Object.assign({},DB,p);save();badge();renderDash();toast('✓ Imported')}else{const lines=e.target.result.trim().split('\n').slice(1);let n=0;lines.forEach(l=>{const p=l.split(',');const date=p[0]?.trim(),amt=parseFloat(p[2]);if(date&&amt){DB.transactions.push({id:uid(),date,description:(p[1]||'').replace(/"/g,''),amount:amt,type:(p[3]||'expense').trim(),category:'other',method:(p[5]||'Cash').trim(),tags:[],createdAt:new Date().toISOString()});n++}});DB.transactions.sort((a,b)=>new Date(b.date)-new Date(a.date));save();badge();renderDash();toast('✓ Imported '+n+' rows')}}catch(err){toast('✕ Import failed')}};r.readAsText(file);inp.value=''}
-function clearAll(){if(!confirm('Delete ALL data?'))return;if(!confirm('Cannot be undone. Confirm?'))return;DB.transactions=[];DB.budgets={};DB.goals=[];DB.recurring=[];save();badge();renderDash();toast('Cleared')}
+function clearAll(){
+  if(!confirm('Delete ALL data? This cannot be undone.'))return;
+  if(!confirm('Are you sure? All transactions, budgets, goals and recurring will be deleted.'))return;
+  DB.transactions=[];
+  DB.budgets={};
+  DB.goals=[];
+  DB.recurring=[];
+  DB.txFt='all';
+  DB.rpP='month';
+  DB.categories=JSON.parse(JSON.stringify(DEF_EXP_CATS));
+  save();
+  badge();
+  // Navigate to dashboard and re-render everything
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('show'));
+  document.querySelectorAll('.sb-lnk').forEach(l=>l.classList.remove('on'));
+  G('pg-dashboard').classList.add('show');
+  const dl=document.querySelector('.sb-lnk[data-pg="dashboard"]');
+  if(dl)dl.classList.add('on');
+  G('pg-title').textContent=TITLES['dashboard']||'Dashboard';
+  renderDash();
+  toast('✓ All data cleared');
+}
 function loadDemo(){const cats=['food','transport','entertainment','health','shopping','utilities'];const descs={food:['Grocery Store','Restaurant','Coffee','Takeaway'],transport:['Uber','Gas Station','Bus Pass','Parking'],entertainment:['Netflix','Cinema','Spotify','Gaming'],health:['Pharmacy','Gym','Doctor'],shopping:['Amazon','Clothing'],utilities:['Electricity','Internet','Phone']};const n=new Date();for(let i=0;i<25;i++){const d=new Date(n);d.setDate(d.getDate()-Math.floor(Math.random()*60));const cat=cats[Math.floor(Math.random()*cats.length)];const ls=descs[cat];DB.transactions.push({id:uid(),date:d.toISOString().slice(0,10),description:ls[Math.floor(Math.random()*ls.length)],amount:parseFloat((Math.random()*150+5).toFixed(2)),type:'expense',category:cat,method:['Cash','Credit Card','Debit Card'][Math.floor(Math.random()*3)],tags:[],createdAt:d.toISOString()})}for(let i=0;i<3;i++){const d=new Date(n);d.setMonth(d.getMonth()-i);d.setDate(1);DB.transactions.push({id:uid(),date:d.toISOString().slice(0,10),description:'Monthly Salary',amount:3500,type:'income',category:'salary',method:'Bank Transfer',tags:['essential'],createdAt:d.toISOString()})}if(!DB.budgets.food)DB.budgets.food=300;if(!DB.budgets.entertainment)DB.budgets.entertainment=150;if(!DB.budgets.transport)DB.budgets.transport=200;if(!DB.goals.length)DB.goals.push({id:uid(),name:'Emergency Fund',target:5000,current:1800,date:'2025-12-31',icon:'💰',createdAt:new Date().toISOString()});if(DB.recurring.length<2){DB.recurring.push({id:uid(),name:'Netflix',amount:15.99,frequency:'monthly',category:'entertainment',nextDate:today(),createdAt:new Date().toISOString()});DB.recurring.push({id:uid(),name:'Gym',amount:40,frequency:'monthly',category:'health',nextDate:today(),createdAt:new Date().toISOString()})}DB.transactions.sort((a,b)=>new Date(b.date)-new Date(a.date));save();badge();renderDash();toast('✓ Demo loaded')}
 
 // ════════════════════════════════════════════════════
@@ -1071,7 +1296,8 @@ function botSay(text){addMsg(text,'bot')}
 function addMsg(text,who){
   const now=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
   const html=mdLite(safe(text));
-  G('bmsgs').insertAdjacentHTML('beforeend',`<div class="bmsg ${who}"><div class="bbub">${html}</div><div class="btime">${who==='bot'?'Penny · ':''}${now}</div></div>`);
+  G('bmsgs').insertAdjacentHTML('beforeend',
+    `<div class="bmsg ${who}"><div class="bbub">${html}</div><div class="btime">${who==='bot'?'Penny · ':''}${now}</div></div>`);
   scrollBot();
 }
 
@@ -1244,17 +1470,110 @@ function hit(q,kw){return kw.some(k=>q.includes(k))}
 
 
 // ════════════════════════════════════════════════════
+//  TRANSLATIONS
+// ════════════════════════════════════════════════════
+const LANGS = {
+  en:{nav_dashboard:'Dashboard',nav_transactions:'Transactions',nav_budget:'Budget',nav_goals:'Goals',nav_reports:'Reports',nav_recurring:'Recurring',nav_categories:'Categories',nav_settings:'Settings',add_btn:'＋ Add',currency_lbl:'Currency',language_lbl:'Language',page_dashboard:'Dashboard',page_transactions:'All Transactions',page_budget:'Budget Planner',page_goals:'Savings Goals',page_reports:'Reports & Analytics',page_recurring:'Recurring Expenses',page_categories:'Categories',page_settings:'Settings',income_month:'Income (Month)',expenses_month:'Expenses (Month)',net_balance:'Net Balance',daily_avg:'Daily Average',daily_avg_sub:'Expenses / day',recent_tx:'◈ Recent Transactions',view_all:'View All →',by_category:'▦ By Category',monthly_trend:'↗ Monthly Trend',top_spending:'◎ Top Spending',set_budget:'＋ Set Budget',new_goal:'＋ New Goal',add_recurring:'＋ Add Recurring',new_category:'＋ New Category',save_tx:'Save Transaction',cancel:'Cancel',amount:'Amount',date:'Date',description:'Description',category:'Category',payment_method:'Payment Method',notes:'Notes',tags:'Tags',expense:'Expense',income:'Income',all:'All',clear:'Clear',export:'Export',backup:'Backup',import:'Import',load_demo:'Load Demo',clear_all:'Clear All',preferences:'Preferences',budget_alerts:'Budget Alerts',show_decimals:'Show Decimals',compact_rows:'Compact Rows',theme_style:'🎨 Theme Style',language:'🌐 Language',monthly:'Monthly',annual:'Annual',active:'Active',log_now:'Log Now',create_goal:'Create Goal',set_budget_btn:'Set Budget',total_budgeted:'Total Budgeted',total_spent:'Total Spent',remaining:'Remaining','bot_name':'Penny AI','bot_status':'Online · Your finance assistant','bot_placeholder':'Ask Penny anything...','balance_q':'Balance','top_spend_q':'Top Spend','tip_q':'Tip','new_goal_lbl':'New Savings Goal','add_recurring_lbl':'Add Recurring','new_category_lbl':'New Category','add_category_btn':'Add Category','rec_name':'Name','frequency':'Frequency','due_date':'Next Due Date','icon_lbl':'Icon','cat_name':'Name','data_lbl':'Data','about_lbl':'About','export_csv_lbl':'Export CSV','backup_json_lbl':'Backup JSON','import_lbl':'Import','load_demo_lbl':'Load Demo Data','clear_all_lbl':'Clear All Data','month_lbl':'Month','quarter_lbl':'Quarter','year_lbl':'Year','lang_name':'English'},
+  hi:{nav_dashboard:'डैशबोर्ड',nav_transactions:'लेन-देन',nav_budget:'बजट',nav_goals:'लक्ष्य',nav_reports:'रिपोर्ट',nav_recurring:'आवर्ती',nav_categories:'श्रेणियाँ',nav_settings:'सेटिंग्स',add_btn:'＋ जोड़ें',currency_lbl:'मुद्रा',language_lbl:'भाषा',page_dashboard:'डैशबोर्ड',page_transactions:'सभी लेन-देन',page_budget:'बजट योजनाकार',page_goals:'बचत लक्ष्य',page_reports:'रिपोर्ट और विश्लेषण',page_recurring:'आवर्ती खर्चे',page_categories:'श्रेणियाँ',page_settings:'सेटिंग्स',income_month:'आय (माह)',expenses_month:'खर्च (माह)',net_balance:'शुद्ध शेष',daily_avg:'दैनिक औसत',daily_avg_sub:'खर्च / दिन',recent_tx:'◈ हाल के लेन-देन',view_all:'सभी देखें →',by_category:'▦ श्रेणी अनुसार',monthly_trend:'↗ मासिक रुझान',top_spending:'◎ शीर्ष खर्च',set_budget:'＋ बजट सेट करें',new_goal:'＋ नया लक्ष्य',add_recurring:'＋ आवर्ती जोड़ें',new_category:'＋ नई श्रेणी',save_tx:'लेन-देन सहेजें',cancel:'रद्द करें',amount:'राशि',date:'तारीख',description:'विवरण',category:'श्रेणी',payment_method:'भुगतान विधि',notes:'नोट्स',tags:'टैग',expense:'खर्च',income:'आय',all:'सभी',clear:'साफ करें',export:'निर्यात',backup:'बैकअप',import:'आयात',load_demo:'डेमो लोड करें',clear_all:'सब मिटाएं',preferences:'प्राथमिकताएं',budget_alerts:'बजट अलर्ट',show_decimals:'दशमलव दिखाएं',compact_rows:'कॉम्पैक्ट पंक्तियाँ',theme_style:'🎨 थीम स्टाइल',language:'🌐 भाषा',monthly:'मासिक',annual:'वार्षिक',active:'सक्रिय',log_now:'अभी दर्ज करें',create_goal:'लक्ष्य बनाएं',set_budget_btn:'बजट सेट करें',total_budgeted:'कुल बजट',total_spent:'कुल खर्च',remaining:'शेष','bot_name':'पैनी AI','bot_status':'ऑनलाइन · आपका वित्त सहायक','bot_placeholder':'पैनी से कुछ भी पूछें...','balance_q':'बैलेंस','top_spend_q':'सर्वाधिक खर्च','tip_q':'सुझाव','new_goal_lbl':'नया लक्ष्य','add_recurring_lbl':'आवर्ती जोड़ें','new_category_lbl':'नई श्रेणी','add_category_btn':'श्रेणी जोड़ें','rec_name':'नाम','frequency':'आवृत्ति','due_date':'अगली देय तारीख','icon_lbl':'आइकॉन','cat_name':'नाम','data_lbl':'डेटा','about_lbl':'के बारे में','export_csv_lbl':'CSV निर्यात','backup_json_lbl':'JSON बैकअप','import_lbl':'आयात','load_demo_lbl':'डेमो डेटा लोड करें','clear_all_lbl':'सब डेटा मिटाएं','month_lbl':'माह','quarter_lbl':'तिमाही','year_lbl':'वर्ष','lang_name':'हिन्दी'},
+  ta:{nav_dashboard:'டாஷ்போர்டு',nav_transactions:'பரிவர்த்தனைகள்',nav_budget:'பட்ஜெட்',nav_goals:'இலக்குகள்',nav_reports:'அறிக்கைகள்',nav_recurring:'மீண்டும் வரும்',nav_categories:'வகைகள்',nav_settings:'அமைப்புகள்',add_btn:'＋ சேர்',currency_lbl:'நாணயம்',language_lbl:'மொழி',page_dashboard:'டாஷ்போர்டு',page_transactions:'அனைத்து பரிவர்த்தனைகள்',page_budget:'பட்ஜெட் திட்டமிடல்',page_goals:'சேமிப்பு இலக்குகள்',page_reports:'அறிக்கைகள் மற்றும் பகுப்பாய்வு',page_recurring:'மீண்டும் வரும் செலவுகள்',page_categories:'வகைகள்',page_settings:'அமைப்புகள்',income_month:'வருமானம் (மாதம்)',expenses_month:'செலவுகள் (மாதம்)',net_balance:'நிகர இருப்பு',daily_avg:'தினசரி சராசரி',daily_avg_sub:'செலவுகள் / நாள்',recent_tx:'◈ சமீபத்திய பரிவர்த்தனைகள்',view_all:'அனைத்தும் காண →',by_category:'▦ வகை வாரியாக',monthly_trend:'↗ மாதாந்திர போக்கு',top_spending:'◎ அதிக செலவு',set_budget:'＋ பட்ஜெட் அமை',new_goal:'＋ புதிய இலக்கு',add_recurring:'＋ மீண்டும் வரும் சேர்',new_category:'＋ புதிய வகை',save_tx:'பரிவர்த்தனை சேமி',cancel:'ரத்து',amount:'தொகை',date:'தேதி',description:'விளக்கம்',category:'வகை',payment_method:'கட்டண முறை',notes:'குறிப்புகள்',tags:'குறிச்சொற்கள்',expense:'செலவு',income:'வருமானம்',all:'அனைத்தும்',clear:'அழி',export:'ஏற்றுமதி',backup:'காப்புப்பிரதி',import:'இறக்குமதி',load_demo:'டெமோ ஏற்று',clear_all:'அனைத்தும் அழி',preferences:'விருப்பங்கள்',budget_alerts:'பட்ஜெட் எச்சரிக்கைகள்',show_decimals:'தசமங்கள் காட்டு',compact_rows:'அடர்த்தியான வரிசைகள்',theme_style:'🎨 தீம் பாணி',language:'🌐 மொழி',monthly:'மாதாந்திர',annual:'வருடாந்திர',active:'செயலில்',log_now:'இப்போது பதிவு',create_goal:'இலக்கு உருவாக்கு',set_budget_btn:'பட்ஜெட் அமை',total_budgeted:'மொத்த பட்ஜெட்',total_spent:'மொத்த செலவு',remaining:'மீதமுள்ளது','lang_name':'தமிழ்'},
+  te:{nav_dashboard:'డాష్‌బోర్డ్',nav_transactions:'లావాదేవీలు',nav_budget:'బడ్జెట్',nav_goals:'లక్ష్యాలు',nav_reports:'నివేదికలు',nav_recurring:'పునరావృత',nav_categories:'వర్గాలు',nav_settings:'సెట్టింగ్‌లు',add_btn:'＋ జోడించు',currency_lbl:'కరెన్సీ',language_lbl:'భాష',page_dashboard:'డాష్‌బోర్డ్',page_transactions:'అన్ని లావాదేవీలు',page_budget:'బడ్జెట్ ప్లానర్',page_goals:'పొదుపు లక్ష్యాలు',page_reports:'నివేదికలు మరియు విశ్లేషణలు',page_recurring:'పునరావృత ఖర్చులు',page_categories:'వర్గాలు',page_settings:'సెట్టింగ్‌లు',income_month:'ఆదాయం (నెల)',expenses_month:'ఖర్చులు (నెల)',net_balance:'నికర నిల్వ',daily_avg:'రోజువారీ సగటు',daily_avg_sub:'ఖర్చులు / రోజు',recent_tx:'◈ ఇటీవలి లావాదేవీలు',view_all:'అన్నీ చూడు →',by_category:'▦ వర్గం వారీగా',monthly_trend:'↗ నెలవారీ ధోరణి',top_spending:'◎ అత్యధిక వ్యయం',set_budget:'＋ బడ్జెట్ సెట్',new_goal:'＋ కొత్త లక్ష్యం',add_recurring:'＋ పునరావృత జోడించు',new_category:'＋ కొత్త వర్గం',save_tx:'లావాదేవీ సేవ్',cancel:'రద్దు',amount:'మొత్తం',date:'తేదీ',description:'వివరణ',category:'వర్గం',payment_method:'చెల్లింపు పద్ధతి',notes:'నోట్స్',tags:'ట్యాగ్‌లు',expense:'ఖర్చు',income:'ఆదాయం',all:'అన్నీ',clear:'క్లియర్',export:'ఎగుమతి',backup:'బ్యాకప్',import:'దిగుమతి',load_demo:'డెమో లోడ్',clear_all:'అన్నీ తొలగించు',preferences:'ప్రాధాన్యతలు',budget_alerts:'బడ్జెట్ హెచ్చరికలు',show_decimals:'దశాంశాలు చూపు',compact_rows:'కాంపాక్ట్ వరుసలు',theme_style:'🎨 థీమ్ స్టైల్',language:'🌐 భాష',monthly:'నెలవారీ',annual:'వార్షిక',active:'చురుకైన',log_now:'ఇప్పుడు లాగ్',create_goal:'లక్ష్యం సృష్టించు',set_budget_btn:'బడ్జెట్ సెట్',total_budgeted:'మొత్తం బడ్జెట్',total_spent:'మొత్తం ఖర్చు',remaining:'మిగిలింది','bot_name':'పెన్నీ AI','bot_status':'ఆన్‌లైన్ · మీ ఆర్థిక సహాయకుడు','bot_placeholder':'పెన్నీని ఏదైనా అడగండి...','balance_q':'బాలెన్స్','top_spend_q':'అధిక వ్యయం','tip_q':'చిట్కా','new_goal_lbl':'కొత్త లక్ష్యం','add_recurring_lbl':'పునరావృత జోడించు','new_category_lbl':'కొత్త వర్గం','add_category_btn':'వర్గం జోడించు','rec_name':'పేరు','frequency':'పౌనఃపున్యం','due_date':'తదుపరి గడువు తేదీ','icon_lbl':'చిహ్నం','cat_name':'పేరు','data_lbl':'డేటా','about_lbl':'గురించి','export_csv_lbl':'CSV ఎగుమతి','backup_json_lbl':'JSON బ్యాకప్','import_lbl':'దిగుమతి','load_demo_lbl':'డెమో డేటా లోడ్','clear_all_lbl':'అన్ని డేటా తొలగించు','month_lbl':'నెల','quarter_lbl':'త్రైమాసికం','year_lbl':'సంవత్సరం','lang_name':'తెలుగు'},
+  kn:{nav_dashboard:'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',nav_transactions:'ವಹಿವಾಟುಗಳು',nav_budget:'ಬಜೆಟ್',nav_goals:'ಗುರಿಗಳು',nav_reports:'ವರದಿಗಳು',nav_recurring:'ಪುನರಾವರ್ತಿತ',nav_categories:'ವರ್ಗಗಳು',nav_settings:'ಸೆಟ್ಟಿಂಗ್‌ಗಳು',add_btn:'＋ ಸೇರಿಸಿ',currency_lbl:'ಕರೆನ್ಸಿ',language_lbl:'ಭಾಷೆ',page_dashboard:'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',page_transactions:'ಎಲ್ಲಾ ವಹಿವಾಟುಗಳು',page_budget:'ಬಜೆಟ್ ಯೋಜಕ',page_goals:'ಉಳಿತಾಯ ಗುರಿಗಳು',page_reports:'ವರದಿಗಳು ಮತ್ತು ವಿಶ್ಲೇಷಣೆ',page_recurring:'ಪುನರಾವರ್ತಿತ ವೆಚ್ಚಗಳು',page_categories:'ವರ್ಗಗಳು',page_settings:'ಸೆಟ್ಟಿಂಗ್‌ಗಳು',income_month:'ಆದಾಯ (ತಿಂಗಳು)',expenses_month:'ವೆಚ್ಚಗಳು (ತಿಂಗಳು)',net_balance:'ನಿವ್ವಳ ಬಾಕಿ',daily_avg:'ದೈನಂದಿನ ಸರಾಸರಿ',daily_avg_sub:'ವೆಚ್ಚಗಳು / ದಿನ',recent_tx:'◈ ಇತ್ತೀಚಿನ ವಹಿವಾಟುಗಳು',view_all:'ಎಲ್ಲಾ ನೋಡಿ →',by_category:'▦ ವರ್ಗ ಪ್ರಕಾರ',monthly_trend:'↗ ಮಾಸಿಕ ಪ್ರವೃತ್ತಿ',top_spending:'◎ ಹೆಚ್ಚಿನ ವೆಚ್ಚ',set_budget:'＋ ಬಜೆಟ್ ಹೊಂದಿಸಿ',new_goal:'＋ ಹೊಸ ಗುರಿ',add_recurring:'＋ ಪುನರಾವರ್ತಿತ ಸೇರಿಸಿ',new_category:'＋ ಹೊಸ ವರ್ಗ',save_tx:'ವಹಿವಾಟು ಉಳಿಸಿ',cancel:'ರದ್ದು',amount:'ಮೊತ್ತ',date:'ದಿನಾಂಕ',description:'ವಿವರಣೆ',category:'ವರ್ಗ',payment_method:'ಪಾವತಿ ವಿಧಾನ',notes:'ಟಿಪ್ಪಣಿಗಳು',tags:'ಟ್ಯಾಗ್‌ಗಳು',expense:'ವೆಚ್ಚ',income:'ಆದಾಯ',all:'ಎಲ್ಲಾ',clear:'ಸ್ಪಷ್ಟ',export:'ರಫ್ತು',backup:'ಬ್ಯಾಕಪ್',import:'ಆಮದು',load_demo:'ಡೆಮೊ ಲೋಡ್',clear_all:'ಎಲ್ಲಾ ತೆಗೆ',preferences:'ಆದ್ಯತೆಗಳು',budget_alerts:'ಬಜೆಟ್ ಎಚ್ಚರಿಕೆಗಳು',show_decimals:'ದಶಮಾಂಶ ತೋರಿಸಿ',compact_rows:'ಸಾಂದ್ರ ಸಾಲುಗಳು',theme_style:'🎨 ಥೀಮ್ ಶೈಲಿ',language:'🌐 ಭಾಷೆ',monthly:'ಮಾಸಿಕ',annual:'ವಾರ್ಷಿಕ',active:'ಸಕ್ರಿಯ',log_now:'ಈಗ ಲಾಗ್',create_goal:'ಗುರಿ ರಚಿಸಿ',set_budget_btn:'ಬಜೆಟ್ ಹೊಂದಿಸಿ',total_budgeted:'ಒಟ್ಟು ಬಜೆಟ್',total_spent:'ಒಟ್ಟು ಖರ್ಚು',remaining:'ಉಳಿದಿದೆ','bot_name':'ಪೆನ್ನಿ AI','bot_status':'ಆನ್‌ಲೈನ್ · ನಿಮ್ಮ ಹಣಕಾಸು ಸಹಾಯಕ','bot_placeholder':'ಪೆನ್ನಿಯನ್ನು ಏನಾದರೂ ಕೇಳಿ...','balance_q':'ಬ್ಯಾಲೆನ್ಸ್','top_spend_q':'ಹೆಚ್ಚಿನ ಖರ್ಚು','tip_q':'ಸಲಹೆ','new_goal_lbl':'ಹೊಸ ಗುರಿ','add_recurring_lbl':'ಪುನರಾವರ್ತಿತ ಸೇರಿಸಿ','new_category_lbl':'ಹೊಸ ವರ್ಗ','add_category_btn':'ವರ್ಗ ಸೇರಿಸಿ','rec_name':'ಹೆಸರು','frequency':'ಆವರ್ತನ','due_date':'ಮುಂದಿನ ನಿಗದಿತ ದಿನಾಂಕ','icon_lbl':'ಐಕಾನ್','cat_name':'ಹೆಸರು','data_lbl':'ಡೇಟಾ','about_lbl':'ಕುರಿತು','export_csv_lbl':'CSV ರಫ್ತು','backup_json_lbl':'JSON ಬ್ಯಾಕಪ್','import_lbl':'ಆಮದು','load_demo_lbl':'ಡೆಮೊ ಡೇಟಾ ಲೋಡ್','clear_all_lbl':'ಎಲ್ಲಾ ಡೇಟಾ ತೆಗೆ','month_lbl':'ತಿಂಗಳು','quarter_lbl':'ತ್ರೈಮಾಸಿಕ','year_lbl':'ವರ್ಷ','lang_name':'ಕನ್ನಡ'},
+  ml:{nav_dashboard:'ഡാഷ്‌ബോർഡ്',nav_transactions:'ഇടപാടുകൾ',nav_budget:'ബജറ്റ്',nav_goals:'ലക്ഷ്യങ്ങൾ',nav_reports:'റിപ്പോർട്ടുകൾ',nav_recurring:'ആവർത്തിക്കുന്ന',nav_categories:'വിഭാഗങ്ങൾ',nav_settings:'ക്രമീകരണങ്ങൾ',add_btn:'＋ ചേർക്കുക',currency_lbl:'കറൻസി',language_lbl:'ഭാഷ',page_dashboard:'ഡാഷ്‌ബോർഡ്',page_transactions:'എല്ലാ ഇടപാടുകളും',page_budget:'ബജറ്റ് പ്ലാനർ',page_goals:'സേവിംഗ്സ് ലക്ഷ്യങ്ങൾ',page_reports:'റിപ്പോർട്ടുകളും വിശകലനവും',page_recurring:'ആവർത്തിക്കുന്ന ചെലവുകൾ',page_categories:'വിഭാഗങ്ങൾ',page_settings:'ക്രമീകരണങ്ങൾ',income_month:'വരുമാനം (മാസം)',expenses_month:'ചെലവ് (മാസം)',net_balance:'അറ്റ ബാലൻസ്',daily_avg:'ദൈനിക ശരാശരി',daily_avg_sub:'ചെലവ് / ദിവസം',recent_tx:'◈ സമീപകാല ഇടപാടുകൾ',view_all:'എല്ലാം കാണുക →',by_category:'▦ വിഭാഗം അനുസരിച്ച്',monthly_trend:'↗ മാസിക ട്രെൻഡ്',top_spending:'◎ ഏറ്റവും കൂടുതൽ ചെലവ്',set_budget:'＋ ബജറ്റ് സജ്ജമാക്കുക',new_goal:'＋ പുതിയ ലക്ഷ്യം',add_recurring:'＋ ആവർത്തിക്കുന്നത് ചേർക്കുക',new_category:'＋ പുതിയ വിഭാഗം',save_tx:'ഇടപാട് സേവ് ചെയ്യുക',cancel:'റദ്ദാക്കുക',amount:'തുക',date:'തീയതി',description:'വിവരണം',category:'വിഭാഗം',payment_method:'പേയ്‌മെന്റ് രീതി',notes:'കുറിപ്പുകൾ',tags:'ടാഗുകൾ',expense:'ചെലവ്',income:'വരുമാനം',all:'എല്ലാം',clear:'ക്ലിയർ',export:'കയറ്റുമതി',backup:'ബാക്കപ്പ്',import:'ഇറക്കുമതി',load_demo:'ഡെമോ ലോഡ്',clear_all:'എല്ലാം ഇല്ലാതാക്കുക',preferences:'മുൻഗണനകൾ',budget_alerts:'ബജറ്റ് അലർട്ടുകൾ',show_decimals:'ദശാംശം കാണിക്കുക',compact_rows:'ഒതുക്കമുള്ള വരികൾ',theme_style:'🎨 തീം ശൈലി',language:'🌐 ഭാഷ',monthly:'പ്രതിമാസം',annual:'വാർഷിക',active:'സജീവം',log_now:'ഇപ്പോൾ ലോഗ്',create_goal:'ലക്ഷ്യം സൃഷ്ടിക്കുക',set_budget_btn:'ബജറ്റ് സജ്ജമാക്കുക',total_budgeted:'മൊത്തം ബജറ്റ്',total_spent:'മൊത്തം ചെലവ്',remaining:'ശേഷിക്കുന്നത്','bot_name':'പെന്നി AI','bot_status':'ഓൺലൈൻ · നിങ്ങളുടെ ധനകാര്യ സഹായി','bot_placeholder':'പെന്നിയോട് എന്തും ചോദിക്കൂ...','balance_q':'ബാലൻസ്','top_spend_q':'ഏറ്റവും ചെലവ്','tip_q':'ടിപ്പ്','new_goal_lbl':'പുതിയ ലക്ഷ്യം','add_recurring_lbl':'ആവർത്തിക്കുന്നത് ചേർക്കുക','new_category_lbl':'പുതിയ വിഭാഗം','add_category_btn':'വിഭാഗം ചേർക്കുക','rec_name':'പേര്','frequency':'ആവൃത്തി','due_date':'അടുത്ത നിയതദിനം','icon_lbl':'ഐക്കൺ','cat_name':'പേര്','data_lbl':'ഡേറ്റ','about_lbl':'കുറിച്ച്','export_csv_lbl':'CSV കയറ്റുമതി','backup_json_lbl':'JSON ബാക്കപ്പ്','import_lbl':'ഇറക്കുമതി','load_demo_lbl':'ഡെമോ ഡേറ്റ ലോഡ്','clear_all_lbl':'എല്ലാ ഡേറ്റയും ഇല്ലാതാക്കുക','month_lbl':'മാസം','quarter_lbl':'പാദം','year_lbl':'വർഷം','lang_name':'മലയാളം'},
+  bn:{nav_dashboard:'ড্যাশবোর্ড',nav_transactions:'লেনদেন',nav_budget:'বাজেট',nav_goals:'লক্ষ্যমাত্রা',nav_reports:'প্রতিবেদন',nav_recurring:'পুনরাবৃত্তি',nav_categories:'বিভাগ',nav_settings:'সেটিংস',add_btn:'＋ যোগ করুন',currency_lbl:'মুদ্রা',language_lbl:'ভাষা',page_dashboard:'ড্যাশবোর্ড',page_transactions:'সব লেনদেন',page_budget:'বাজেট পরিকল্পনাকারী',page_goals:'সঞ্চয় লক্ষ্যমাত্রা',page_reports:'প্রতিবেদন ও বিশ্লেষণ',page_recurring:'পুনরাবৃত্তিমূলক ব্যয়',page_categories:'বিভাগ',page_settings:'সেটিংস',income_month:'আয় (মাস)',expenses_month:'ব্যয় (মাস)',net_balance:'নেট ব্যালেন্স',daily_avg:'দৈনিক গড়',daily_avg_sub:'ব্যয় / দিন',recent_tx:'◈ সাম্প্রতিক লেনদেন',view_all:'সব দেখুন →',by_category:'▦ বিভাগ অনুসারে',monthly_trend:'↗ মাসিক প্রবণতা',top_spending:'◎ সর্বোচ্চ ব্যয়',set_budget:'＋ বাজেট নির্ধারণ',new_goal:'＋ নতুন লক্ষ্য',add_recurring:'＋ পুনরাবৃত্তি যোগ',new_category:'＋ নতুন বিভাগ',save_tx:'লেনদেন সংরক্ষণ',cancel:'বাতিল',amount:'পরিমাণ',date:'তারিখ',description:'বিবরণ',category:'বিভাগ',payment_method:'পরিশোধ পদ্ধতি',notes:'নোট',tags:'ট্যাগ',expense:'ব্যয়',income:'আয়',all:'সব',clear:'পরিষ্কার',export:'রপ্তানি',backup:'ব্যাকআপ',import:'আমদানি',load_demo:'ডেমো লোড',clear_all:'সব মুছুন',preferences:'পছন্দ',budget_alerts:'বাজেট সতর্কতা',show_decimals:'দশমিক দেখান',compact_rows:'কম্প্যাক্ট সারি',theme_style:'🎨 থিম স্টাইল',language:'🌐 ভাষা',monthly:'মাসিক',annual:'বার্ষিক',active:'সক্রিয়',log_now:'এখন লগ',create_goal:'লক্ষ্য তৈরি',set_budget_btn:'বাজেট নির্ধারণ',total_budgeted:'মোট বাজেট',total_spent:'মোট ব্যয়',remaining:'বাকি','bot_name':'পেনি AI','bot_status':'অনলাইন · আপনার আর্থিক সহকারী','bot_placeholder':'পেনিকে যেকোনো কিছু জিজ্ঞেস করুন...','balance_q':'ব্যালেন্স','top_spend_q':'সর্বোচ্চ ব্যয়','tip_q':'টিপস','new_goal_lbl':'নতুন লক্ষ্য','add_recurring_lbl':'পুনরাবৃত্তি যোগ','new_category_lbl':'নতুন বিভাগ','add_category_btn':'বিভাগ যোগ করুন','rec_name':'নাম','frequency':'ফ্রিকোয়েন্সি','due_date':'পরবর্তী নিযুক্ত তারিখ','icon_lbl':'আইকন','cat_name':'নাম','data_lbl':'ডেটা','about_lbl':'সম্পর্কে','export_csv_lbl':'CSV রপ্তানি','backup_json_lbl':'JSON ব্যাকআপ','import_lbl':'আমদানি','load_demo_lbl':'ডেমো ডেটা লোড','clear_all_lbl':'সব ডেটা মুছুন','month_lbl':'মাস','quarter_lbl':'প্রান্তিক','year_lbl':'বছর','lang_name':'বাংলা'},
+  mr:{nav_dashboard:'डॅशबोर्ड',nav_transactions:'व्यवहार',nav_budget:'बजेट',nav_goals:'उद्दिष्टे',nav_reports:'अहवाल',nav_recurring:'आवर्ती',nav_categories:'श्रेणी',nav_settings:'सेटिंग्ज',add_btn:'＋ जोडा',currency_lbl:'चलन',language_lbl:'भाषा',page_dashboard:'डॅशबोर्ड',page_transactions:'सर्व व्यवहार',page_budget:'बजेट नियोजक',page_goals:'बचत उद्दिष्टे',page_reports:'अहवाल आणि विश्लेषण',page_recurring:'आवर्ती खर्च',page_categories:'श्रेणी',page_settings:'सेटिंग्ज',income_month:'उत्पन्न (महिना)',expenses_month:'खर्च (महिना)',net_balance:'निव्वळ शिल्लक',daily_avg:'दैनिक सरासरी',daily_avg_sub:'खर्च / दिन',recent_tx:'◈ अलीकडील व्यवहार',view_all:'सर्व पहा →',by_category:'▦ श्रेणीनुसार',monthly_trend:'↗ मासिक कल',top_spending:'◎ सर्वाधिक खर्च',set_budget:'＋ बजेट सेट करा',new_goal:'＋ नवीन उद्दिष्ट',add_recurring:'＋ आवर्ती जोडा',new_category:'＋ नवीन श्रेणी',save_tx:'व्यवहार जतन करा',cancel:'रद्द करा',amount:'रक्कम',date:'तारीख',description:'वर्णन',category:'श्रेणी',payment_method:'देय पद्धत',notes:'नोट्स',tags:'टॅग',expense:'खर्च',income:'उत्पन्न',all:'सर्व',clear:'स्पष्ट',export:'निर्यात',backup:'बॅकअप',import:'आयात',load_demo:'डेमो लोड',clear_all:'सर्व हटवा',preferences:'प्राधान्ये',budget_alerts:'बजेट अलर्ट',show_decimals:'दशांश दाखवा',compact_rows:'संक्षिप्त ओळी',theme_style:'🎨 थीम शैली',language:'🌐 भाषा',monthly:'मासिक',annual:'वार्षिक',active:'सक्रिय',log_now:'आता लॉग',create_goal:'उद्दिष्ट तयार करा',set_budget_btn:'बजेट सेट करा',total_budgeted:'एकूण बजेट',total_spent:'एकूण खर्च',remaining:'शिल्लक','bot_name':'पेनी AI','bot_status':'ऑनलाइन · तुमचा आर्थिक सहाय्यक','bot_placeholder':'पेनीला काहीही विचारा...','balance_q':'शिल्लक','top_spend_q':'सर्वाधिक खर्च','tip_q':'टिप','new_goal_lbl':'नवीन उद्दिष्ट','add_recurring_lbl':'आवर्ती जोडा','new_category_lbl':'नवीन श्रेणी','add_category_btn':'श्रेणी जोडा','rec_name':'नाव','frequency':'वारंवारता','due_date':'पुढील देय तारीख','icon_lbl':'चिन्ह','cat_name':'नाव','data_lbl':'डेटा','about_lbl':'बद्दल','export_csv_lbl':'CSV निर्यात','backup_json_lbl':'JSON बॅकअप','import_lbl':'आयात','load_demo_lbl':'डेमो डेटा लोड','clear_all_lbl':'सर्व डेटा हटवा','month_lbl':'महिना','quarter_lbl':'तिमाही','year_lbl':'वर्ष','lang_name':'मराठी'},
+  es:{nav_dashboard:'Panel',nav_transactions:'Transacciones',nav_budget:'Presupuesto',nav_goals:'Metas',nav_reports:'Reportes',nav_recurring:'Recurrentes',nav_categories:'Categorías',nav_settings:'Ajustes',add_btn:'＋ Agregar',currency_lbl:'Moneda',language_lbl:'Idioma',page_dashboard:'Panel',page_transactions:'Todas las Transacciones',page_budget:'Planificador de Presupuesto',page_goals:'Metas de Ahorro',page_reports:'Reportes y Análisis',page_recurring:'Gastos Recurrentes',page_categories:'Categorías',page_settings:'Ajustes',income_month:'Ingresos (Mes)',expenses_month:'Gastos (Mes)',net_balance:'Saldo Neto',daily_avg:'Promedio Diario',daily_avg_sub:'Gastos / día',recent_tx:'◈ Transacciones Recientes',view_all:'Ver Todo →',by_category:'▦ Por Categoría',monthly_trend:'↗ Tendencia Mensual',top_spending:'◎ Mayor Gasto',set_budget:'＋ Establecer Presupuesto',new_goal:'＋ Nueva Meta',add_recurring:'＋ Agregar Recurrente',new_category:'＋ Nueva Categoría',save_tx:'Guardar Transacción',cancel:'Cancelar',amount:'Monto',date:'Fecha',description:'Descripción',category:'Categoría',payment_method:'Método de Pago',notes:'Notas',tags:'Etiquetas',expense:'Gasto',income:'Ingreso',all:'Todo',clear:'Limpiar',export:'Exportar',backup:'Respaldo',import:'Importar',load_demo:'Cargar Demo',clear_all:'Borrar Todo',preferences:'Preferencias',budget_alerts:'Alertas de Presupuesto',show_decimals:'Mostrar Decimales',compact_rows:'Filas Compactas',theme_style:'🎨 Estilo de Tema',language:'🌐 Idioma',monthly:'Mensual',annual:'Anual',active:'Activo',log_now:'Registrar Ahora',create_goal:'Crear Meta',set_budget_btn:'Establecer Presupuesto',total_budgeted:'Total Presupuestado',total_spent:'Total Gastado',remaining:'Restante','bot_name':'Penny IA','bot_status':'En línea · Tu asistente financiero','bot_placeholder':'Pregúntale a Penny lo que sea...','balance_q':'Saldo','top_spend_q':'Mayor Gasto','tip_q':'Consejo','new_goal_lbl':'Nueva Meta','add_recurring_lbl':'Agregar Recurrente','new_category_lbl':'Nueva Categoría','add_category_btn':'Agregar Categoría','rec_name':'Nombre','frequency':'Frecuencia','due_date':'Próxima fecha','icon_lbl':'Ícono','cat_name':'Nombre','data_lbl':'Datos','about_lbl':'Acerca de','export_csv_lbl':'Exportar CSV','backup_json_lbl':'Respaldo JSON','import_lbl':'Importar','load_demo_lbl':'Cargar datos demo','clear_all_lbl':'Borrar todos los datos','month_lbl':'Mes','quarter_lbl':'Trimestre','year_lbl':'Año','lang_name':'Español'},
+  fr:{nav_dashboard:'Tableau de Bord',nav_transactions:'Transactions',nav_budget:'Budget',nav_goals:'Objectifs',nav_reports:'Rapports',nav_recurring:'Récurrents',nav_categories:'Catégories',nav_settings:'Paramètres',add_btn:'＋ Ajouter',currency_lbl:'Devise',language_lbl:'Langue',page_dashboard:'Tableau de Bord',page_transactions:'Toutes les Transactions',page_budget:"Planificateur de Budget",page_goals:"Objectifs d'Épargne",page_reports:'Rapports et Analyses',page_recurring:'Dépenses Récurrentes',page_categories:'Catégories',page_settings:'Paramètres',income_month:'Revenus (Mois)',expenses_month:'Dépenses (Mois)',net_balance:'Solde Net',daily_avg:'Moyenne Quotidienne',daily_avg_sub:'Dépenses / jour',recent_tx:'◈ Transactions Récentes',view_all:'Voir Tout →',by_category:'▦ Par Catégorie',monthly_trend:'↗ Tendance Mensuelle',top_spending:'◎ Top Dépenses',set_budget:'＋ Définir Budget',new_goal:'＋ Nouvel Objectif',add_recurring:'＋ Ajouter Récurrent',new_category:'＋ Nouvelle Catégorie',save_tx:'Enregistrer Transaction',cancel:'Annuler',amount:'Montant',date:'Date',description:'Description',category:'Catégorie',payment_method:'Mode de Paiement',notes:'Notes',tags:'Étiquettes',expense:'Dépense',income:'Revenu',all:'Tout',clear:'Effacer',export:'Exporter',backup:'Sauvegarde',import:'Importer',load_demo:'Charger Démo',clear_all:'Tout Effacer',preferences:'Préférences',budget_alerts:'Alertes Budget',show_decimals:'Afficher Décimales',compact_rows:'Lignes Compactes',theme_style:'🎨 Style Thème',language:'🌐 Langue',monthly:'Mensuel',annual:'Annuel',active:'Actif',log_now:'Enregistrer',create_goal:'Créer Objectif',set_budget_btn:'Définir Budget',total_budgeted:'Total Budgété',total_spent:'Total Dépensé',remaining:'Restant','bot_name':'Penny IA','bot_status':'En ligne · Votre assistant financier','bot_placeholder':'Posez à Penny une question...','balance_q':'Solde','top_spend_q':'Top Dépenses','tip_q':'Conseil','new_goal_lbl':'Nouvel Objectif','add_recurring_lbl':'Ajouter Récurrent','new_category_lbl':'Nouvelle Catégorie','add_category_btn':'Ajouter Catégorie','rec_name':'Nom','frequency':'Fréquence','due_date':'Prochaine échéance','icon_lbl':'Icône','cat_name':'Nom','data_lbl':'Données','about_lbl':'À propos','export_csv_lbl':'Exporter CSV','backup_json_lbl':'Sauvegarde JSON','import_lbl':'Importer','load_demo_lbl':'Charger données démo','clear_all_lbl':'Tout supprimer','month_lbl':'Mois','quarter_lbl':'Trimestre','year_lbl':'Année','lang_name':'Français'},
+  ar:{nav_dashboard:'لوحة التحكم',nav_transactions:'المعاملات',nav_budget:'الميزانية',nav_goals:'الأهداف',nav_reports:'التقارير',nav_recurring:'المتكررة',nav_categories:'الفئات',nav_settings:'الإعدادات',add_btn:'＋ إضافة',currency_lbl:'العملة',language_lbl:'اللغة',page_dashboard:'لوحة التحكم',page_transactions:'جميع المعاملات',page_budget:'مخطط الميزانية',page_goals:'أهداف الادخار',page_reports:'التقارير والتحليلات',page_recurring:'المصروفات المتكررة',page_categories:'الفئات',page_settings:'الإعدادات',income_month:'الدخل (الشهر)',expenses_month:'المصروفات (الشهر)',net_balance:'الرصيد الصافي',daily_avg:'المتوسط اليومي',daily_avg_sub:'مصروفات / يوم',recent_tx:'◈ المعاملات الأخيرة',view_all:'عرض الكل →',by_category:'▦ حسب الفئة',monthly_trend:'↗ الاتجاه الشهري',top_spending:'◎ أعلى الإنفاق',set_budget:'＋ تعيين الميزانية',new_goal:'＋ هدف جديد',add_recurring:'＋ إضافة متكرر',new_category:'＋ فئة جديدة',save_tx:'حفظ المعاملة',cancel:'إلغاء',amount:'المبلغ',date:'التاريخ',description:'الوصف',category:'الفئة',payment_method:'طريقة الدفع',notes:'ملاحظات',tags:'الوسوم',expense:'مصروف',income:'دخل',all:'الكل',clear:'مسح',export:'تصدير',backup:'نسخ احتياطي',import:'استيراد',load_demo:'تحميل عرض',clear_all:'مسح الكل',preferences:'التفضيلات',budget_alerts:'تنبيهات الميزانية',show_decimals:'إظهار الكسور',compact_rows:'صفوف مضغوطة',theme_style:'🎨 نمط السمة',language:'🌐 اللغة',monthly:'شهري',annual:'سنوي',active:'نشط',log_now:'تسجيل الآن',create_goal:'إنشاء هدف',set_budget_btn:'تعيين الميزانية',total_budgeted:'الميزانية الإجمالية',total_spent:'إجمالي المصروفات',remaining:'المتبقي','bot_name':'بيني AI','bot_status':'متصل · مساعدك المالي','bot_placeholder':'اسأل بيني أي شيء...','balance_q':'الرصيد','top_spend_q':'أعلى الإنفاق','tip_q':'نصيحة','new_goal_lbl':'هدف جديد','add_recurring_lbl':'إضافة متكرر','new_category_lbl':'فئة جديدة','add_category_btn':'إضافة فئة','rec_name':'الاسم','frequency':'التكرار','due_date':'تاريخ الاستحقاق التالي','icon_lbl':'أيقونة','cat_name':'الاسم','data_lbl':'البيانات','about_lbl':'حول','export_csv_lbl':'تصدير CSV','backup_json_lbl':'نسخ JSON احتياطي','import_lbl':'استيراد','load_demo_lbl':'تحميل بيانات تجريبية','clear_all_lbl':'حذف كل البيانات','month_lbl':'شهر','quarter_lbl':'ربع','year_lbl':'سنة','lang_name':'العربية'},
+  zh:{nav_dashboard:'仪表板',nav_transactions:'交易记录',nav_budget:'预算',nav_goals:'储蓄目标',nav_reports:'报告',nav_recurring:'定期支出',nav_categories:'分类',nav_settings:'设置',add_btn:'＋ 添加',currency_lbl:'货币',language_lbl:'语言',page_dashboard:'仪表板',page_transactions:'所有交易',page_budget:'预算规划',page_goals:'储蓄目标',page_reports:'报告与分析',page_recurring:'定期支出',page_categories:'分类',page_settings:'设置',income_month:'收入（本月）',expenses_month:'支出（本月）',net_balance:'净余额',daily_avg:'日均支出',daily_avg_sub:'支出 / 天',recent_tx:'◈ 最近交易',view_all:'查看全部 →',by_category:'▦ 按分类',monthly_trend:'↗ 月度趋势',top_spending:'◎ 最高支出',set_budget:'＋ 设置预算',new_goal:'＋ 新目标',add_recurring:'＋ 添加定期',new_category:'＋ 新分类',save_tx:'保存交易',cancel:'取消',amount:'金额',date:'日期',description:'描述',category:'分类',payment_method:'支付方式',notes:'备注',tags:'标签',expense:'支出',income:'收入',all:'全部',clear:'清除',export:'导出',backup:'备份',import:'导入',load_demo:'加载演示',clear_all:'清除全部',preferences:'偏好设置',budget_alerts:'预算提醒',show_decimals:'显示小数',compact_rows:'紧凑行',theme_style:'🎨 主题风格',language:'🌐 语言',monthly:'每月',annual:'每年',active:'活跃',log_now:'立即记录',create_goal:'创建目标',set_budget_btn:'设置预算',total_budgeted:'总预算',total_spent:'总支出',remaining:'剩余','bot_name':'Penny AI','bot_status':'在线 · 您的财务助手','bot_placeholder':'向Penny提问任何问题...','balance_q':'余额','top_spend_q':'最高支出','tip_q':'建议','new_goal_lbl':'新目标','add_recurring_lbl':'添加定期','new_category_lbl':'新分类','add_category_btn':'添加分类','rec_name':'名称','frequency':'频率','due_date':'下次到期日','icon_lbl':'图标','cat_name':'名称','data_lbl':'数据','about_lbl':'关于','export_csv_lbl':'导出 CSV','backup_json_lbl':'JSON 备份','import_lbl':'导入','load_demo_lbl':'加载演示数据','clear_all_lbl':'清除所有数据','month_lbl':'月','quarter_lbl':'季度','year_lbl':'年','lang_name':'中文'},
+  ja:{nav_dashboard:'ダッシュボード',nav_transactions:'取引',nav_budget:'予算',nav_goals:'目標',nav_reports:'レポート',nav_recurring:'定期支出',nav_categories:'カテゴリ',nav_settings:'設定',add_btn:'＋ 追加',currency_lbl:'通貨',language_lbl:'言語',page_dashboard:'ダッシュボード',page_transactions:'すべての取引',page_budget:'予算プランナー',page_goals:'貯蓄目標',page_reports:'レポートと分析',page_recurring:'定期支出',page_categories:'カテゴリ',page_settings:'設定',income_month:'収入（今月）',expenses_month:'支出（今月）',net_balance:'純残高',daily_avg:'1日平均',daily_avg_sub:'支出 / 日',recent_tx:'◈ 最近の取引',view_all:'すべて見る →',by_category:'▦ カテゴリ別',monthly_trend:'↗ 月次トレンド',top_spending:'◎ 支出上位',set_budget:'＋ 予算設定',new_goal:'＋ 新しい目標',add_recurring:'＋ 定期追加',new_category:'＋ 新しいカテゴリ',save_tx:'取引を保存',cancel:'キャンセル',amount:'金額',date:'日付',description:'説明',category:'カテゴリ',payment_method:'支払方法',notes:'メモ',tags:'タグ',expense:'支出',income:'収入',all:'すべて',clear:'クリア',export:'エクスポート',backup:'バックアップ',import:'インポート',load_demo:'デモ読込',clear_all:'全削除',preferences:'環境設定',budget_alerts:'予算アラート',show_decimals:'小数点表示',compact_rows:'コンパクト表示',theme_style:'🎨 テーマスタイル',language:'🌐 言語',monthly:'毎月',annual:'毎年',active:'アクティブ',log_now:'今すぐ記録',create_goal:'目標を作成',set_budget_btn:'予算を設定',total_budgeted:'総予算',total_spent:'総支出',remaining:'残り','bot_name':'ペニー AI','bot_status':'オンライン · あなたの財務アシスタント','bot_placeholder':'ペニーに何でも聞いてください...','balance_q':'残高','top_spend_q':'最高支出','tip_q':'ヒント','new_goal_lbl':'新しい目標','add_recurring_lbl':'定期追加','new_category_lbl':'新しいカテゴリ','add_category_btn':'カテゴリを追加','rec_name':'名前','frequency':'頻度','due_date':'次回期日','icon_lbl':'アイコン','cat_name':'名前','data_lbl':'データ','about_lbl':'について','export_csv_lbl':'CSV エクスポート','backup_json_lbl':'JSON バックアップ','import_lbl':'インポート','load_demo_lbl':'デモデータ読込','clear_all_lbl':'全データ削除','month_lbl':'月','quarter_lbl':'四半期','year_lbl':'年','lang_name':'日本語'},
+};
+
+let currentLang='en';
+function T(key){ return (LANGS[currentLang]||LANGS.en)[key] || LANGS.en[key] || key; }
+
+function setLang(code){
+  currentLang = code;
+  DB.lang = code;
+  save();
+  // RTL
+  document.body.style.direction = code==='ar' ? 'rtl' : 'ltr';
+  document.documentElement.lang = code;
+  // Sync dropdowns & cards
+  const lsel=G('langsel'); if(lsel) lsel.value=code;
+  document.querySelectorAll('.lang-card').forEach(el=>el.classList.toggle('on',el.dataset.lang===code));
+  // Apply translations
+  applyLang();
+  toast('✓ '+T('language_lbl')+' → '+(LANGS[code]?.lang_name||code));
+}
+
+function applyLang(){
+  // ── A. All [data-i18n] elements ──
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const v=T(el.dataset.i18n);
+    if(v) el.textContent=v;
+  });
+
+  // ── B. Dynamic page title ──
+  const curPg=document.querySelector('.sb-lnk.on')?.dataset.pg;
+  if(curPg) G('pg-title').textContent=T('page_'+curPg)||TITLES[curPg]||curPg;
+
+  // ── C. Update TITLES map so go() always uses translated titles ──
+  ['dashboard','transactions','budget','goals','reports','recurring','categories','settings'].forEach(p=>{
+    TITLES[p]=T('page_'+p)||TITLES[p];
+  });
+
+  // ── D. Bot UI strings ──
+  const bhn=document.querySelector('.bhn'); if(bhn) bhn.textContent=T('bot_name')||'Penny AI';
+  const bhs=document.querySelector('.bhs'); if(bhs) bhs.textContent=T('bot_status')||'Online · Your finance assistant';
+  const binput=G('binput'); if(binput) binput.placeholder=T('bot_placeholder')||'Ask Penny anything...';
+
+  // ── E. Bot quick pills ──
+  const pills=document.querySelectorAll('.bq');
+  const pillMap=['💰 '+T('balance_q'),'🏆 '+T('nav_goals'),'🎯 '+T('nav_budget'),
+                 '🔁 '+T('nav_recurring'),'📈 '+T('nav_reports'),'🔥 '+T('top_spend_q'),'💡 '+T('tip_q')];
+  pills.forEach((el,i)=>{ if(pillMap[i]) el.textContent=pillMap[i]; });
+
+  // ── F. Settings headings without data-i18n (dynamic render) ──
+  document.querySelectorAll('.sghead:not([data-i18n])').forEach(el=>{
+    const t=el.textContent.trim();
+    const dataNames=['Data','データ','डेटा','தரவு','డేటా','ಡೇಟಾ','ഡേറ്റ','ডেটা','डेटा','Datos','Données','البيانات','数据'];
+    const aboutNames=['About','について','के बारे में','பற்றி','గురించి','ಕುರಿತು','കുറിച്ച്','সম্পর্কে','बद्दल','Acerca de','À propos','حول','关于'];
+    if(dataNames.includes(t)) el.textContent=T('data_lbl')||'Data';
+    if(aboutNames.includes(t)) el.textContent=T('about_lbl')||'About';
+  });
+
+  // ── G. Re-render active page for dynamic translated content ──
+  if(curPg==='dashboard') renderDash();
+  else if(curPg==='transactions') renderTx();
+  else if(curPg==='budget') renderBud();
+  else if(curPg==='goals') renderGoals();
+  else if(curPg==='reports') renderReports();
+  else if(curPg==='recurring') renderRec();
+  else if(curPg==='categories') renderCats();
+}
+
+function syncLangCards(){
+  const cur=DB.lang||'en';
+  document.querySelectorAll('.lang-card').forEach(c=>c.classList.toggle('on',c.dataset.lang===cur));
+  const lsel=G('langsel'); if(lsel) lsel.value=cur;
+}
+
+// ════════════════════════════════════════════════════
 //  INIT
 // ════════════════════════════════════════════════════
 load();
 applyTheme();
 syncThemePicker();
+if(DB.lang){ currentLang=DB.lang; document.body.style.direction=DB.lang==='ar'?'rtl':'ltr'; document.documentElement.lang=DB.lang; }
+syncLangCards();
 G('tog-al').classList.toggle('on',!!DB.prefs.alerts);
 G('tog-dec').classList.toggle('on',!!DB.prefs.decimals);
 G('tog-cmp').classList.toggle('on',!!DB.prefs.compact);
 G('cursel').value=DB.currency;
 badge();
 renderDash();
+if(DB.lang && DB.lang!=='en') applyLang();
+
 </script>
 </body>
 </html>
