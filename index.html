@@ -777,39 +777,39 @@ let DB = {
 };
 
 
-// ── TRANSLATIONS (must be before first T() call) ──
+// ── TRANSLATIONS (English only) ──
+const LANGS = {en:{}};
+const currentLang = 'en';
 
-function save(){try{localStorage.setItem('sw5',JSON.stringify(DB))}catch(e){}}
-function load(){try{const r=localStorage.getItem('sw5');if(r){const p=JSON.parse(r);DB=Object.assign({},DB,p);if(!DB.categories||!DB.categories.length)DB.categories=JSON.parse(JSON.stringify(DEF_EXP_CATS));}}catch(e){}}
-
-
-// ════════════════════════════════════════════════════
-//  UTILS
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
+//  CORE HELPERS
+// ══════════════════════════════════════════════
 const G = id => document.getElementById(id);
-function fmt(n){const a=Math.abs(n);return DB.currency+(DB.prefs.decimals?a.toFixed(2):Math.round(a))}
-function sgn(n){return(n>=0?'+':'-')+fmt(n)}
-function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,5)}
-function today(){return new Date().toISOString().slice(0,10)}
-function catOf(id){return DB.categories.find(c=>c.id===id)||DEF_INC_CATS.find(c=>c.id===id)||{name:id,icon:'📦'}}
-function safe(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-function mTx(){const m=new Date().toISOString().slice(0,7);return DB.transactions.filter(t=>t.date.startsWith(m))}
-function catSpend(list){const r={};list.filter(t=>t.type==='expense').forEach(t=>{r[t.category]=(r[t.category]||0)+t.amount});return r}
-function toast(msg){const s=G('snk');s.textContent=msg;s.classList.add('show');clearTimeout(s._t);s._t=setTimeout(()=>s.classList.remove('show'),2500)}
+const safe = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const uid  = () => Math.random().toString(36).slice(2,9);
+const today= () => new Date().toISOString().slice(0,10);
+const fmt  = n => { const a=Math.abs(n); return (n<0?'-':'')+DB.currency+(DB.prefs.decimals?a.toFixed(2):Math.round(a)); };
+const sgn  = n => (n>=0?'+':'')+fmt(n);
+const mTx  = () => { const m=new Date(); return DB.transactions.filter(t=>{ const d=new Date(t.date); return d.getFullYear()===m.getFullYear()&&d.getMonth()===m.getMonth(); }); };
+const catSpend = txs => { const o={}; txs.filter(t=>t.type==='expense').forEach(t=>o[t.category]=(o[t.category]||0)+t.amount); return o; };
+const catOf = id => DB.categories.find(c=>c.id===id)||DEF_INC_CATS.find(c=>c.id===id)||{name:id,icon:'📦'};
+const mdLite = s => s.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
 
-// ════════════════════════════════════════════════════
+function save(){ try{localStorage.setItem('sw5',JSON.stringify(DB))}catch(e){} }
+function load(){ try{const r=localStorage.getItem('sw5');if(r){const p=JSON.parse(r);DB=Object.assign({},DB,p);if(!DB.categories?.length)DB.categories=JSON.parse(JSON.stringify(DEF_EXP_CATS));}}catch(e){} }
+
+const TITLES = {dashboard:'Dashboard',transactions:'Transactions',budget:'Budget Planner',goals:'Savings Goals',reports:'Reports & Analytics',recurring:'Recurring Expenses',categories:'Categories',settings:'Settings'};
+
+// ══════════════════════════════════════════════
 //  NAVIGATION
-// ════════════════════════════════════════════════════
-const TITLES={dashboard:'Dashboard',transactions:'Transactions',budget:'Budget Planner',goals:'Savings Goals',reports:'Reports',recurring:'Recurring',categories:'Categories',settings:'Settings'};
-let cCat=null,cTrend=null,cBud=null,cLine=null,cPie=null;
-
+// ══════════════════════════════════════════════
 function go(page,lnk){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('show'));
   document.querySelectorAll('.sb-lnk').forEach(l=>l.classList.remove('on'));
-  G('pg-'+page).classList.add('show');
+  const pg=G('pg-'+page); if(pg)pg.classList.add('show');
   if(lnk)lnk.classList.add('on');
-  else{const l=document.querySelector(`.sb-lnk[data-pg="${page}"]`);if(l)l.classList.add('on')}
-  G('pg-title').textContent=T('page_'+page)||TITLES[page]||page;
+  else { const el=document.querySelector('.sb-lnk[data-pg="'+page+'"]'); if(el)el.classList.add('on'); }
+  G('pg-title').textContent=TITLES[page]||page;
   closeSB();
   if(page==='dashboard')renderDash();
   else if(page==='transactions')renderTx();
@@ -819,574 +819,542 @@ function go(page,lnk){
   else if(page==='recurring')renderRec();
   else if(page==='categories')renderCats();
   else if(page==='settings'){syncThemePicker();}
-  // Re-apply language translations to the freshly rendered page
-  
-
-function toggleSB(){G('sidebar').classList.toggle('open');G('sbo').style.display=G('sidebar').classList.contains('open')?'block':'none'}
-function closeSB(){G('sidebar').classList.remove('open');G('sbo').style.display='none'}
-function openM(id){G(id).classList.add('show');}
-function closeM(id){G(id).classList.remove('show')}
-function badge(){G('txbg').textContent=DB.transactions.length}
-
-// ════════════════════════════════════════════════════
-//  ADD TRANSACTION
-// ════════════════════════════════════════════════════
-function fillCats(type){
-  const cats = type==='income' ? DEF_INC_CATS : DB.categories;
-  G('f-cat2').innerHTML = cats.map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');
 }
+function toggleSB(){ G('sidebar').classList.toggle('open'); G('sbo').classList.toggle('show'); }
+function closeSB(){ G('sidebar').classList.remove('open'); G('sbo').classList.remove('show'); }
+function badge(){ const n=DB.transactions.length; G('txbg').textContent=n||''; G('txbg').style.display=n?'flex':'none'; }
 
-function openAdd(eid){
-  G('tagwrap').innerHTML = TAGS.map(t=>`<span class="tag" data-tag="${t}" onclick="this.classList.toggle('on')">${t}</span>`).join('');
-  if(eid){
-    const tx=DB.transactions.find(t=>t.id===eid);if(!tx)return;
-    fillCats(tx.type);
-    G('m-add-t').textContent='Edit Transaction';
-    G('f-id').value=eid;G('f-amt').value=tx.amount;G('f-date').value=tx.date;
-    G('f-desc').value=tx.description;G('f-cat2').value=tx.category;
-    G('f-meth').value=tx.method||'Cash';G('f-notes').value=tx.notes||'';
-    G('f-type').value=tx.type;
-    G('tab-exp').classList.toggle('on',tx.type==='expense');
-    G('tab-inc').classList.toggle('on',tx.type==='income');
-    setTimeout(()=>{document.querySelectorAll('#tagwrap .tag').forEach(t=>t.classList.toggle('on',(tx.tags||[]).includes(t.dataset.tag)))},20);
-  }else{
-    fillCats('expense');
-    G('m-add-t').textContent='Add Transaction';
-    G('f-id').value='';G('f-amt').value='';G('f-date').value=today();
-    G('f-desc').value='';G('f-notes').value='';G('f-type').value='expense';
-    G('tab-exp').classList.add('on');G('tab-inc').classList.remove('on');
-  }
+// ══════════════════════════════════════════════
+//  MODALS
+// ══════════════════════════════════════════════
+function openM(id){ G(id).classList.add('show'); }
+function closeM(id){ G(id).classList.remove('show'); }
+
+// ══════════════════════════════════════════════
+//  ADD / EDIT TRANSACTION
+// ══════════════════════════════════════════════
+function openAdd(editId){
+  const t = editId ? DB.transactions.find(x=>x.id===editId) : null;
+  G('m-add-t').textContent = t ? 'Edit Transaction' : 'Add Transaction';
+  G('f-id').value   = t ? t.id : '';
+  G('f-amt').value  = t ? t.amount : '';
+  G('f-date').value = t ? t.date : today();
+  G('f-desc').value = t ? (t.description==='No description'?'':t.description) : '';
+  G('f-notes').value= t ? (t.notes||'') : '';
+  G('f-meth').value = t ? (t.method||'Cash') : 'Cash';
+  setType(t ? t.type : 'expense');
+  if(t){ G('f-cat2').value=t.category; }
+  document.querySelectorAll('#tagwrap .tag').forEach(el=>el.classList.toggle('on', t ? (t.tags||[]).includes(el.dataset.tag) : false));
   openM('m-add');
 }
-
 function setType(type){
   G('f-type').value=type;
   G('tab-exp').classList.toggle('on',type==='expense');
   G('tab-inc').classList.toggle('on',type==='income');
   fillCats(type);
 }
-
+function fillCats(type){
+  const cats = type==='income' ? DEF_INC_CATS : DB.categories;
+  G('f-cat2').innerHTML = cats.map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');
+}
 function saveTx(){
   const amt=parseFloat(G('f-amt').value);
   const date=G('f-date').value;
   const desc=G('f-desc').value.trim()||'No description';
-  if(!amt||amt<=0){toast('⚠ Enter a valid amount');return}
-  if(!date){toast('⚠ Select a date');return}
+  if(!amt||amt<=0){toast('⚠ Enter a valid amount');return;}
+  if(!date){toast('⚠ Select a date');return;}
   const tags=[...document.querySelectorAll('#tagwrap .tag.on')].map(t=>t.dataset.tag);
-  const tx={id:G('f-id').value||uid(),amount:amt,date,description:desc,category:G('f-cat2').value,type:G('f-type').value,method:G('f-meth').value,notes:G('f-notes').value.trim(),tags,createdAt:new Date().toISOString()};
-  const eid=G('f-id').value;
-  if(eid){const i=DB.transactions.findIndex(t=>t.id===eid);if(i>=0)DB.transactions[i]=tx;toast('✓ Updated')}
-  else{DB.transactions.unshift(tx);toast('✓ Transaction added')}
-  save();closeM('m-add');badge();renderDash();
-  // Also refresh tx list if currently on transactions page
-  if(G('pg-transactions').classList.contains('show')) renderTx();
-  if(tx.type==='expense'&&DB.prefs.alerts&&DB.budgets[tx.category]){
-    const lim=DB.budgets[tx.category];
-    const sp=mTx().filter(t=>t.type==='expense'&&t.category===tx.category).reduce((s,t)=>s+t.amount,0);
-    if(sp>=lim)toast('🚨 Budget exceeded: '+catOf(tx.category).name);
-    else if(sp>=lim*.8)toast('⚠ Near limit: '+catOf(tx.category).name);
+  const id=G('f-id').value||uid();
+  const tx={id,amount:amt,date,description:desc,category:G('f-cat2').value,
+    type:G('f-type').value,method:G('f-meth').value,notes:G('f-notes').value.trim(),tags,createdAt:new Date().toISOString()};
+  const idx=DB.transactions.findIndex(t=>t.id===id);
+  if(idx>=0)DB.transactions[idx]=tx; else DB.transactions.unshift(tx);
+  // Budget alerts
+  if(DB.prefs.alerts && tx.type==='expense'){
+    const bud=DB.budgets[tx.category];
+    if(bud){
+      const mx=mTx(); const sp=catSpend(mx)[tx.category]||0;
+      const pct=sp/bud*100;
+      if(pct>=100)toast('🚨 Over budget: '+catOf(tx.category).name);
+      else if(pct>=80)toast('⚠ 80% budget used: '+catOf(tx.category).name);
+    }
   }
+  save(); badge(); closeM('m-add');
+  const curPg=document.querySelector('.sb-lnk.on')?.dataset.pg;
+  if(curPg==='dashboard')renderDash();
+  else if(curPg==='transactions')renderTx();
+  else if(curPg==='budget')renderBud();
+  toast('✓ Transaction saved');
 }
 
-function delTx(id){
-  if(!confirm('Delete this transaction?'))return;
-  DB.transactions=DB.transactions.filter(t=>t.id!==id);
-  save();badge();renderDash();
-  if(G('pg-transactions').classList.contains('show'))renderTx();
-  toast('✓ Deleted');
+// ══════════════════════════════════════════════
+//  TRANSACTION ROW
+// ══════════════════════════════════════════════
+function txRow(t){
+  const cat=catOf(t.category);
+  return `<div class="txrow${DB.prefs.compact?' compact':''}" onclick="openAdd('${t.id}')">
+    <div class="txic">${cat.icon}</div>
+    <div class="txinfo">
+      <div class="txname">${safe(t.description)}</div>
+      <div class="txsub">${safe(cat.name)} · ${t.date}${t.method?' · '+t.method:''}${(t.tags||[]).length?' · '+t.tags.join(', '):''}</div>
+    </div>
+    <div class="txamt ${t.type}" >${t.type==='income'?'+':'-'}${fmt(t.amount)}</div>
+    <div class="txdel" onclick="event.stopPropagation();delTx('${t.id}')">✕</div>
+  </div>`;
 }
+function delTx(id){ if(!confirm('Delete this transaction?'))return; DB.transactions=DB.transactions.filter(t=>t.id!==id); save();badge(); const curPg=document.querySelector('.sb-lnk.on')?.dataset.pg; if(curPg==='dashboard')renderDash(); else renderTx(); }
 
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
 //  DASHBOARD
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
+let cCat=null, cTrend=null;
 function renderDash(){
   const mx=mTx();
   const inc=mx.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
   const exp=mx.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
-  const net=inc-exp;const day=new Date().getDate();
-  G('d-inc').textContent=fmt(inc);G('d-exp').textContent=fmt(exp);
-  G('d-net').textContent=sgn(net);G('d-avg').textContent=fmt(exp/day);
-  G('d-inct').textContent=mx.filter(t=>t.type==='income').length+' transactions';
-  G('d-expt').textContent=mx.filter(t=>t.type==='expense').length+' transactions';
-  G('d-nets').textContent=net>=0?'Positive ▲':'Deficit ▼';
+  const net=inc-exp;
+  const days=new Date().getDate();
+  G('d-inc').textContent=fmt(inc); G('d-inct').textContent=mx.filter(t=>t.type==='income').length+' transactions';
+  G('d-exp').textContent=fmt(exp); G('d-expt').textContent=mx.filter(t=>t.type==='expense').length+' transactions';
+  G('d-net').textContent=fmt(net); G('d-nets').textContent=net>=0?'Positive ▲':'Deficit ▼';
+  G('d-avg').textContent=fmt(days?exp/days:0);
   const rec=DB.transactions.slice(0,6);
   if(!rec.length){
-    G('d-rec').innerHTML=`<div style="text-align:center;padding:20px 0">
-      <div style="font-size:2rem;margin-bottom:8px">💸</div>
-      <div style="font-weight:700;font-size:.9rem;margin-bottom:4px">No transactions yet</div>
-      <div style="font-size:.78rem;color:var(--g5);margin-bottom:14px">Start by logging your first income or expense</div>
-      <button class="btn prim sm" onclick="openAdd(null)">＋ Add First Transaction</button>
-    </div>`;
-  } else {
-    G('d-rec').innerHTML=rec.map(txRow).join('');
-  }
-  drawCatCh(mx);drawTrendCh();renderTop(mx);
+    G('d-rec').innerHTML=`<div style="text-align:center;padding:20px"><div style="font-size:2rem">💸</div><div style="font-weight:700;margin:8px 0 4px">No transactions yet</div><div style="font-size:.78rem;color:var(--g5);margin-bottom:14px">Start by logging your first income or expense</div><button class="btn prim sm" onclick="openAdd(null)">＋ Add First Transaction</button></div>`;
+  } else { G('d-rec').innerHTML=rec.map(txRow).join(''); }
+  drawCatCh(mx); drawTrendCh();
+  const cs=catSpend(mx); const top=Object.entries(cs).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  G('d-top').innerHTML=top.length?top.map(([id,a])=>{const p=Math.min(a/(top[0][1]||1)*100,100);return`<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:3px"><span>${catOf(id).icon} ${catOf(id).name}</span><strong>${fmt(a)}</strong></div><div style="height:6px;background:var(--g2)"><div style="height:100%;background:var(--b);width:${p}%"></div></div>`;}).join(''):'<div class="emp"><div class="ei">◎</div><p>No expenses this month</p></div>';
 }
-
-function txRow(t){
-  const c=catOf(t.category);const sg=t.type==='income'?'+':'-';
-  return`<div class="txr" onclick="openAdd('${t.id}')"><div class="txic">${c.icon}</div><div class="txinf"><div class="txnm">${safe(t.description)}</div><div class="txmt">${t.date} · ${c.name} · ${t.method||'Cash'}${t.tags&&t.tags.length?' · '+t.tags.slice(0,2).join(', '):''}</div></div><div class="txamt">${sg}${fmt(t.amount)}</div><div class="txdel"><button class="iBtn" style="width:27px;height:27px;font-size:.72rem" onclick="event.stopPropagation();delTx('${t.id}')">✕</button></div></div>`;
+function drawCatCh(mx){
+  const ctx=G('ch-cat'); if(!ctx)return;
+  const cs=catSpend(mx); const ks=Object.keys(cs);
+  if(cCat){cCat.destroy();cCat=null;}
+  if(!ks.length){ctx.getContext('2d').clearRect(0,0,ctx.width,ctx.height);return;}
+  const palette=['#000','#555','#888','#aaa','#ccc','#333','#666','#999','#bbb','#ddd'];
+  cCat=new Chart(ctx,{type:'doughnut',data:{labels:ks.map(k=>catOf(k).name),datasets:[{data:Object.values(cs),backgroundColor:ks.map((_,i)=>palette[i%palette.length]),borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Space Mono',size:9},boxWidth:12}}}}});
 }
-
-function drawCatCh(list){
-  const cs=catSpend(list);const ks=Object.keys(cs);
-  const ctx=G('ch-cat');if(!ctx)return;
-  if(cCat){cCat.destroy();cCat=null}
-  if(!ks.length)return;
-  cCat=new Chart(ctx,{type:'doughnut',data:{labels:ks.map(k=>catOf(k).name),datasets:[{data:ks.map(k=>cs[k]),backgroundColor:['#000','#2a2a2a','#444','#666','#888','#aaa','#bbb','#ccc','#ddd','#eee'],borderColor:'#fff',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{family:'Space Mono',size:9},color:'#000',boxWidth:10}}}}});
-}
-
 function drawTrendCh(){
-  const ctx=G('ch-trend');if(!ctx)return;
-  if(cTrend){cTrend.destroy();cTrend=null}
-  const lbs=[],incD=[],expD=[];
-  for(let i=5;i>=0;i--){const d=new Date();d.setMonth(d.getMonth()-i);const k=d.toISOString().slice(0,7);lbs.push(d.toLocaleString('default',{month:'short'}));const mt=DB.transactions.filter(t=>t.date.startsWith(k));incD.push(mt.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0));expD.push(mt.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0))}
-  cTrend=new Chart(ctx,{type:'bar',data:{labels:lbs,datasets:[{label:'Income',data:incD,backgroundColor:'#999'},{label:'Expense',data:expD,backgroundColor:'#000'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{family:'Space Mono',size:9},color:'#000'}}},scales:{x:{ticks:{font:{family:'Space Mono',size:8}}},y:{ticks:{font:{family:'Space Mono',size:8}}}}}});
+  const ctx=G('ch-trend'); if(!ctx)return;
+  if(cTrend){cTrend.destroy();cTrend=null;}
+  const now=new Date(); const lbs=[]; const incD=[]; const expD=[];
+  for(let i=5;i>=0;i--){ const d=new Date(now.getFullYear(),now.getMonth()-i,1); const mo=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); lbs.push(d.toLocaleString('default',{month:'short'})); const mt=DB.transactions.filter(t=>t.date.startsWith(mo)); incD.push(mt.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0)); expD.push(mt.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0)); }
+  cTrend=new Chart(ctx,{type:'bar',data:{labels:lbs,datasets:[{label:'Income',data:incD,backgroundColor:'#999'},{label:'Expense',data:expD,backgroundColor:'#000'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{family:'Space Mono',size:9},boxWidth:12}}},scales:{x:{ticks:{font:{family:'Space Mono',size:9}}},y:{ticks:{font:{family:'Space Mono',size:9}}}}}});
 }
 
-function renderTop(list){
-  const cs=catSpend(list);const s=Object.entries(cs).sort((a,b)=>b[1]-a[1]).slice(0,5);const mx=s[0]?.[1]||1;
-  G('d-top').innerHTML=s.length?s.map(([id,a])=>{const c=catOf(id);return`<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:.82rem;font-weight:600">${c.icon} ${c.name}</span><span style="font-family:var(--mono);font-size:.68rem">${fmt(a)}</span></div><div class="bwrap"><div class="bar" style="width:${(a/mx*100).toFixed(0)}%"></div></div></div>`}).join(''):'<div class="emp"><div class="ei">◫</div><p>No data yet</p></div>';
-}
-
-// ════════════════════════════════════════════════════
-//  TRANSACTIONS
-// ════════════════════════════════════════════════════
-function setFt(type,btn){DB.txFt=type;document.querySelectorAll('#txfrow .pill').forEach(p=>p.classList.remove('on'));btn.classList.add('on');renderTx()}
-function clrF(){
-  DB.txFt='all';
-  document.querySelectorAll('#txfrow .pill').forEach(p=>{
-    p.classList.toggle('on', p.dataset.ft==='all');
-  });
-  G('f-cat').value='';
-  G('f-mon').value='';
-  G('f-srch').value='';
-  renderTx();
-}
-function topSrch(v){if(v.length>1){go('transactions',document.querySelector('[data-pg="transactions"]'));setTimeout(()=>{G('f-srch').value=v;renderTx()},30)}}
-
+// ══════════════════════════════════════════════
+//  TRANSACTIONS PAGE
+// ══════════════════════════════════════════════
 function renderTx(){
-  const cs=G('f-cat');const pc=cs.value;
-  cs.innerHTML='<option value="">'+'All Categories'+'</option>'+DB.categories.map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('')+DEF_INC_CATS.map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');
-  cs.value=pc;
-  const ms=G('f-mon');const pm=ms.value;
-  const mons=[...new Set(DB.transactions.map(t=>t.date.slice(0,7)))].sort().reverse();
-  ms.innerHTML='<option value="">'+'All Months'+'</option>'+mons.map(m=>{const[y,mo]=m.split('-');return`<option value="${m}">${new Date(+y,+mo-1).toLocaleString('default',{month:'long',year:'numeric'})}</option>`}).join('');
-  ms.value=pm;
+  const ft=DB.txFt||'all';
+  document.querySelectorAll('#txfrow .pill').forEach(p=>p.classList.toggle('on',p.dataset.ft===ft));
+  const catSel=G('f-cat'); const monSel=G('f-mon');
+  const cats=[...new Set(DB.transactions.map(t=>t.category))];
+  catSel.innerHTML='<option value="">All Categories</option>'+cats.map(id=>`<option value="${id}">${catOf(id).icon} ${catOf(id).name}</option>`).join('');
+  const months=[...new Set(DB.transactions.map(t=>t.date.slice(0,7)))].sort().reverse();
+  monSel.innerHTML='<option value="">All Months</option>'+months.map(m=>`<option value="${m}">${m}</option>`).join('');
   const srch=(G('f-srch').value||'').toLowerCase();
+  const catFt=catSel.value; const monFt=monSel.value;
   let list=DB.transactions.filter(t=>{
-    if(DB.txFt!=='all'&&t.type!==DB.txFt)return false;
-    if(cs.value&&t.category!==cs.value)return false;
-    if(ms.value&&!t.date.startsWith(ms.value))return false;
-    if(srch&&!t.description.toLowerCase().includes(srch)&&!catOf(t.category).name.toLowerCase().includes(srch)&&!(t.notes||'').toLowerCase().includes(srch))return false;
+    if(ft==='expense'&&t.type!=='expense')return false;
+    if(ft==='income'&&t.type!=='income')return false;
+    if(catFt&&t.category!==catFt)return false;
+    if(monFt&&!t.date.startsWith(monFt))return false;
+    if(srch&&!`${t.description}${t.category}${t.notes||''}${(t.tags||[]).join(' ')}`.toLowerCase().includes(srch))return false;
     return true;
   });
-  const emptyTx=`<div style="padding:32px 0">
-    <div class="ob" style="border:none;box-shadow:none;background:transparent">
-      <span class="ob-icon">💳</span>
-      <div class="ob-title">Transactions</div>
-      <div class="ob-desc">Track every rupee you earn and spend. Log expenses, income, and tag them for easy filtering later.</div>
-      <div class="ob-steps">
-        <div class="ob-step"><div class="ob-step-num">1</div><div class="ob-step-txt"><div class="ob-step-title">Click ＋ Add</div><div class="ob-step-desc">Hit the black button at the top right to open the transaction form.</div></div></div>
-        <div class="ob-step"><div class="ob-step-num">2</div><div class="ob-step-txt"><div class="ob-step-title">Choose Expense or Income</div><div class="ob-step-desc">Switch between tabs — each has its own set of categories like Salary, Freelance for income, or Food, Transport for expenses.</div></div></div>
-        <div class="ob-step"><div class="ob-step-num">3</div><div class="ob-step-txt"><div class="ob-step-title">Fill in the details</div><div class="ob-step-desc">Amount, date, description, category, payment method, and optional tags or notes.</div></div></div>
-        <div class="ob-step"><div class="ob-step-num">4</div><div class="ob-step-txt"><div class="ob-step-title">Save & track</div><div class="ob-step-desc">Your transaction appears instantly. Click any row later to edit it, or hover to delete.</div></div></div>
-      </div>
-      <div class="ob-cta"><button class="btn prim" onclick="openAdd(null)">＋ Add Your First Transaction</button></div>
-    </div>
-  </div>`;
-  G('txlist').innerHTML=list.length?list.map(txRow).join(''):emptyTx;
-  const net=list.reduce((s,t)=>t.type==='expense'?s-t.amount:s+t.amount,0);
-  G('txct').textContent='{n} transactions · Net: {net}'.replace('{n}',list.length).replace('{net}',sgn(net));
-}
-
-// ════════════════════════════════════════════════════
-//  BUDGET
-// ════════════════════════════════════════════════════
-function openBud(){G('fb-cat').innerHTML=DB.categories.map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');G('fb-amt').value='';openM('m-bud')}
-function saveBud(){const cat=G('fb-cat').value;const amt=parseFloat(G('fb-amt').value);if(!amt||amt<=0){toast('⚠ Enter a valid amount');return}DB.budgets[cat]=amt;save();closeM('m-bud');renderBud();toast('✓ Budget set')}
-function delBud(id){delete DB.budgets[id];save();renderBud();toast('Budget removed')}
-
-function renderBud(){
-  const mx=mTx();const cs=catSpend(mx);const en=Object.entries(DB.budgets);
-  if(!en.length){
-    G('budlist').innerHTML=`<div class="ob" style="border:none;box-shadow:none;background:transparent;padding:16px 0">
-      <span class="ob-icon">🎯</span>
-      <div class="ob-title">Budget Planner</div>
-      <div class="ob-desc">Set monthly spending limits per category. SpendWise will warn you when you're getting close — so you never overspend again.</div>
-      <div class="ob-steps">
-        <div class="ob-step"><div class="ob-step-num">1</div><div class="ob-step-txt"><div class="ob-step-title">Click ＋ Set Budget</div><div class="ob-step-desc">Choose a spending category like Food, Transport, or Entertainment.</div></div></div>
-        <div class="ob-step"><div class="ob-step-num">2</div><div class="ob-step-txt"><div class="ob-step-title">Enter a monthly limit</div><div class="ob-step-desc">Set a realistic cap for how much you want to spend in that category each month.</div></div></div>
-        <div class="ob-step"><div class="ob-step-num">3</div><div class="ob-step-txt"><div class="ob-step-title">Watch the bar fill up</div><div class="ob-step-desc">As you log expenses, the bar fills. It turns striped at 80% and shows OVER when exceeded. You'll get an alert too!</div></div></div>
-      </div>
-      <div class="ob-cta"><button class="btn prim" onclick="openBud()">＋ Set Your First Budget</button></div>
-    </div>`;
-    G('bt').textContent=G('bs').textContent=G('br').textContent=fmt(0);
-    if(cBud){cBud.destroy();cBud=null}return;
+  const net=list.reduce((s,t)=>s+(t.type==='income'?t.amount:-t.amount),0);
+  if(!list.length){
+    G('txlist').innerHTML='<div class="emp" style="padding:36px 0"><div class="ei">◫</div><p>No transactions found</p></div>';
+    G('txct').textContent='0 transactions';
+  } else {
+    G('txlist').innerHTML=list.map(txRow).join('');
+    G('txct').textContent=list.length+' transactions · Net: '+sgn(net);
   }
-  let tb=0,ts=0;
-  G('budlist').innerHTML=en.map(([id,bud])=>{const c=catOf(id);const sp=cs[id]||0;const p=Math.min(sp/bud*100,100);const cl=p>=100?'over':p>=80?'warn':'';const tg=p>=100?'<span style="font-family:var(--mono);font-size:.54rem;background:var(--b);color:var(--w);padding:1px 5px">OVER</span>':p>=80?'<span style="font-family:var(--mono);font-size:.54rem;color:var(--g5)">⚠</span>':'';tb+=bud;ts+=sp;
-    return`<div style="margin-bottom:16px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;gap:6px"><div style="font-weight:600;font-size:.83rem;display:flex;align-items:center;gap:5px;flex:1">${c.icon} ${c.name} ${tg}</div><div style="display:flex;align-items:center;gap:7px;flex-shrink:0"><span style="font-family:var(--mono);font-size:.65rem;color:var(--g5)">${fmt(sp)} / ${fmt(bud)}</span><button class="btn sm danger" onclick="delBud('${id}')">✕</button></div></div><div class="bwrap"><div class="bar ${cl}" style="width:${p.toFixed(1)}%"></div></div><div style="font-family:var(--mono);font-size:.58rem;color:var(--g4);margin-top:3px">${fmt(Math.max(bud-sp,0))} left · ${p.toFixed(0)}%</div></div>`;
+}
+function setFt(ft,btn){ DB.txFt=ft; document.querySelectorAll('#txfrow .pill').forEach(p=>p.classList.toggle('on',p.dataset.ft===ft)); renderTx(); }
+function topSrch(){ renderTx(); }
+function clrF(){ DB.txFt='all'; G('f-cat').value=''; G('f-mon').value=''; G('f-srch').value=''; renderTx(); }
+function setCur(v){ DB.currency=v; save(); renderDash(); toast('Currency: '+v); }
+
+// ══════════════════════════════════════════════
+//  BUDGET
+// ══════════════════════════════════════════════
+let cBud=null;
+function openBud(){
+  G('fb-cat').innerHTML=DB.categories.map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');
+  G('fb-amt').value='';
+  openM('m-bud');
+}
+function saveBud(){
+  const cat=G('fb-cat').value; const amt=parseFloat(G('fb-amt').value);
+  if(!amt||amt<=0){toast('⚠ Enter a valid amount');return;}
+  DB.budgets[cat]=amt; save(); closeM('m-bud'); renderBud(); toast('✓ Budget set');
+}
+function delBud(id){ delete DB.budgets[id]; save(); renderBud(); }
+function renderBud(){
+  const mx=mTx(); const cs=catSpend(mx); const en=Object.entries(DB.budgets);
+  if(!en.length){
+    G('budlist').innerHTML=`<div class="ob"><span class="ob-icon">🎯</span><div class="ob-title">Budget Planner</div><div class="ob-desc">Set monthly spending limits per category. SpendWise will warn you at 80% and when exceeded.</div><div class="ob-steps"><div class="ob-step"><div class="ob-step-num">1</div><div class="ob-step-txt"><div class="ob-step-title">Click ＋ Set Budget</div><div class="ob-step-desc">Choose a spending category like Food or Transport.</div></div></div><div class="ob-step"><div class="ob-step-num">2</div><div class="ob-step-txt"><div class="ob-step-title">Enter a monthly limit</div><div class="ob-step-desc">Set a realistic cap for that category each month.</div></div></div><div class="ob-step"><div class="ob-step-num">3</div><div class="ob-step-txt"><div class="ob-step-title">Watch the bar fill up</div><div class="ob-step-desc">Bar turns striped at 80% and shows OVER when exceeded.</div></div></div></div><div class="ob-cta"><button class="btn prim" onclick="openBud()">＋ Set Your First Budget</button></div></div>`;
+    G('bt').textContent=G('bs').textContent=G('br').textContent=fmt(0);
+    if(cBud){cBud.destroy();cBud=null;} return;
+  }
+  const tot=en.reduce((s,[,b])=>s+b,0); const spent=en.reduce((s,[id])=>s+(cs[id]||0),0);
+  G('bt').textContent=fmt(tot); G('bs').textContent=fmt(spent); G('br').textContent=fmt(tot-spent);
+  G('budlist').innerHTML=en.map(([id,b])=>{
+    const sp=cs[id]||0; const p=Math.min(sp/b*100,100); const ov=sp>=b; const warn=p>=80&&!ov;
+    return`<div class="bitem"><div class="bitmeta"><span>${catOf(id).icon} ${catOf(id).name}</span><span class="badge ${ov?'over':warn?'warn':''}">${ov?'OVER':warn?'⚠ NEAR':''}</span><button class="btn sm danger" style="padding:2px 8px;font-size:.6rem" onclick="delBud('${id}')">✕</button></div><div class="bbar"><div class="bfill ${ov?'over':warn?'warn':''}" style="width:${p}%"></div></div><div class="bstat"><span>Spent: ${fmt(sp)}</span><span>Left: ${fmt(b-sp)}</span></div></div>`;
   }).join('');
-  G('bt').textContent=fmt(tb);G('bs').textContent=fmt(ts);G('br').textContent=fmt(Math.max(tb-ts,0));
-  const ctx=G('ch-bud');if(ctx){if(cBud){cBud.destroy();cBud=null}cBud=new Chart(ctx,{type:'bar',data:{labels:en.map(([id])=>catOf(id).name),datasets:[{label:'Spent',data:en.map(([id,b])=>Math.min(cs[id]||0,b)),backgroundColor:'#000'},{label:'Left',data:en.map(([id,b])=>Math.max(b-(cs[id]||0),0)),backgroundColor:'#ddd'}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{stacked:true,ticks:{font:{family:'Space Mono',size:8}}},y:{stacked:true,ticks:{font:{family:'Space Mono',size:8}}}},plugins:{legend:{labels:{font:{family:'Space Mono',size:8},color:'#000'}}}}})}
+  if(cBud){cBud.destroy();cBud=null;}
+  const ctx=G('ch-bud');
+  cBud=new Chart(ctx,{type:'bar',data:{labels:en.map(([id])=>catOf(id).name),datasets:[{label:'Spent',data:en.map(([id])=>cs[id]||0),backgroundColor:'#000'},{label:'Left',data:en.map(([id,b])=>Math.max(b-(cs[id]||0),0)),backgroundColor:'#ccc'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{family:'Space Mono',size:9},boxWidth:12}}},scales:{x:{stacked:true,ticks:{font:{family:'Space Mono',size:9}}},y:{stacked:true,ticks:{font:{family:'Space Mono',size:9}}}}}});
 }
 
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
 //  GOALS
-// ════════════════════════════════════════════════════
-function openGoal(){['fg-nm','fg-tg','fg-sv','fg-dt'].forEach(id=>G(id).value='');const ic=G('fg-ic');if(ic)ic.selectedIndex=0;openM('m-goal')}
-function saveGoal(){const nm=G('fg-nm').value.trim();const tg=parseFloat(G('fg-tg').value);const sv=parseFloat(G('fg-sv').value)||0;if(!nm){toast('⚠ Enter a name');return}if(!tg||tg<=0){toast('⚠ Enter a target');return}DB.goals.push({id:uid(),name:nm,target:tg,current:sv,date:G('fg-dt').value,icon:G('fg-ic').value,createdAt:new Date().toISOString()});save();closeM('m-goal');renderGoals();toast('✓ Goal created')}
-function openAddToGoal(id){const g=DB.goals.find(g=>g.id===id);if(!g)return;G('m-gadd-t').textContent='Add to: '+g.name;G('fga-id').value=id;G('fga-amt').value='';openM('m-gadd')}
-function doAddGoal(){const id=G('fga-id').value;const amt=parseFloat(G('fga-amt').value);if(!amt||amt<=0){toast('⚠ Enter a valid amount');return}const g=DB.goals.find(g=>g.id===id);if(g){g.current=Math.min(g.current+amt,g.target);save();closeM('m-gadd');renderGoals();toast('✓ Added '+fmt(amt))}}
-function wdGoal(id,amt){const g=DB.goals.find(g=>g.id===id);if(!g)return;if(g.current<amt){toast('⚠ Not enough saved');return}g.current=Math.max(g.current-amt,0);save();renderGoals();toast('Withdrew '+fmt(amt))}
-function delGoal(id){if(!confirm('Delete goal?'))return;DB.goals=DB.goals.filter(g=>g.id!==id);save();renderGoals();toast('Goal deleted')}
-
+// ══════════════════════════════════════════════
+function openGoal(){
+  G('fg-nm').value=''; G('fg-tg').value=''; G('fg-sv').value='0'; G('fg-dt').value=''; G('fg-ic').value='🎯';
+  openM('m-goal');
+}
+function saveGoal(){
+  const nm=G('fg-nm').value.trim(); const tg=parseFloat(G('fg-tg').value); const sv=parseFloat(G('fg-sv').value)||0;
+  if(!nm){toast('⚠ Enter goal name');return;} if(!tg||tg<=0){toast('⚠ Enter target amount');return;}
+  DB.goals.push({id:uid(),name:nm,target:tg,current:sv,date:G('fg-dt').value,icon:G('fg-ic').value||'🎯',createdAt:new Date().toISOString()});
+  save(); closeM('m-goal'); renderGoals(); toast('✓ Goal created');
+}
+function openAddToGoal(id){ G('fga-id').value=id; G('fga-amt').value=''; openM('m-gadd'); G('m-gadd-t').textContent='Add to Goal'; }
+function doAddGoal(){
+  const id=G('fga-id').value; const amt=parseFloat(G('fga-amt').value);
+  if(!amt||amt<=0){toast('⚠ Enter amount');return;}
+  const g=DB.goals.find(g=>g.id===id); if(!g)return;
+  g.current=Math.max(0,g.current+amt); save(); closeM('m-gadd'); renderGoals(); toast('✓ Savings added');
+}
+function wdGoal(id){ const g=DB.goals.find(g=>g.id===id); if(!g)return; g.current=Math.max(0,g.current-50); save(); renderGoals(); }
+function delGoal(id){ if(!confirm('Delete this goal?'))return; DB.goals=DB.goals.filter(g=>g.id!==id); save(); renderGoals(); }
 function renderGoals(){
   const el=G('glist');
   if(!DB.goals.length){
-    el.innerHTML=`<div style="grid-column:1/-1"><div class="ob">
-      <span class="ob-icon">🏆</span>
-      <div class="ob-title">Savings Goals</div>
-      <div class="ob-desc">Set financial targets and track your progress. Whether it's an emergency fund, a vacation, a new phone — every big goal starts with a plan.</div>
-      <div class="ob-features">
-        <div class="ob-feat"><div class="ob-feat-ic">📊</div><div>Visual progress bar & % complete</div></div>
-        <div class="ob-feat"><div class="ob-feat-ic">📅</div><div>Target date with days remaining</div></div>
-        <div class="ob-feat"><div class="ob-feat-ic">💡</div><div>Monthly savings needed to hit goal</div></div>
-        <div class="ob-feat"><div class="ob-feat-ic">🎉</div><div>Celebration when you reach 100%</div></div>
-      </div>
-      <div class="ob-steps">
-        <div class="ob-step"><div class="ob-step-num">1</div><div class="ob-step-txt"><div class="ob-step-title">Click ＋ New Goal</div><div class="ob-step-desc">Give your goal a name — like "Emergency Fund" or "Vacation to Japan".</div></div></div>
-        <div class="ob-step"><div class="ob-step-num">2</div><div class="ob-step-txt"><div class="ob-step-title">Set target amount & date</div><div class="ob-step-desc">How much do you need and by when? SpendWise calculates how much to save per month automatically.</div></div></div>
-        <div class="ob-step"><div class="ob-step-num">3</div><div class="ob-step-txt"><div class="ob-step-title">Enter how much you already saved</div><div class="ob-step-desc">Already put something aside? Add it now so your progress bar starts in the right place.</div></div></div>
-        <div class="ob-step"><div class="ob-step-num">4</div><div class="ob-step-txt"><div class="ob-step-title">Tap ＋ Add to grow your savings</div><div class="ob-step-desc">Add any amount anytime. Watch the bar fill up. Hit 100% and celebrate 🎉</div></div></div>
-      </div>
-      <div class="ob-cta"><button class="btn prim" onclick="openGoal()">＋ Create Your First Goal</button></div>
-    </div></div>`;return;
+    el.innerHTML=`<div style="grid-column:1/-1"><div class="ob"><span class="ob-icon">🏆</span><div class="ob-title">Savings Goals</div><div class="ob-desc">Set financial targets and track your progress. Whether it's an emergency fund, a vacation, or a new phone — every big goal starts with a plan.</div><div class="ob-features"><div class="ob-feat"><div class="ob-feat-ic">📊</div><div>Visual progress bar & % complete</div></div><div class="ob-feat"><div class="ob-feat-ic">📅</div><div>Target date with days remaining</div></div><div class="ob-feat"><div class="ob-feat-ic">💡</div><div>Monthly savings pace needed</div></div><div class="ob-feat"><div class="ob-feat-ic">🎉</div><div>Celebration when you reach 100%</div></div></div><div class="ob-steps"><div class="ob-step"><div class="ob-step-num">1</div><div class="ob-step-txt"><div class="ob-step-title">Click ＋ New Goal</div><div class="ob-step-desc">Give your goal a name — like "Emergency Fund" or "Vacation".</div></div></div><div class="ob-step"><div class="ob-step-num">2</div><div class="ob-step-txt"><div class="ob-step-title">Set target amount & date</div><div class="ob-step-desc">SpendWise calculates how much to save per month automatically.</div></div></div><div class="ob-step"><div class="ob-step-num">3</div><div class="ob-step-txt"><div class="ob-step-title">Tap ＋ Add to grow savings</div><div class="ob-step-desc">Add any amount anytime. Hit 100% and celebrate! 🎉</div></div></div></div><div class="ob-cta"><button class="btn prim" onclick="openGoal()">＋ Create Your First Goal</button></div></div></div>`;
+    return;
   }
-  el.innerHTML=DB.goals.map(g=>{const p=Math.min(g.current/g.target*100,100);const dl=g.date?Math.ceil((new Date(g.date)-new Date())/86400000):null;const nd=g.target-g.current;const mp=(dl&&dl>0)?nd/(dl/30):null;const dn=p>=100;
-    return`<div class="gcrd"><div style="display:flex;justify-content:space-between;margin-bottom:7px"><div style="font-size:1.8rem">${g.icon}</div><button class="btn sm danger" onclick="delGoal('${g.id}')">✕</button></div><div style="font-weight:700;font-size:.92rem;margin-bottom:3px">${safe(g.name)}${dn?' ✓':''}</div>${g.date?`<div style="font-family:var(--mono);font-size:.57rem;color:var(--g4);margin-bottom:6px">${g.date}${dl!==null?` · ${dl}${'d left'}`:''}</div>`:''}<div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.63rem;color:var(--g5);margin-bottom:5px"><span>${fmt(g.current)} saved</span><span>${fmt(g.target)} goal</span></div><div class="gbwrap"><div class="gbar" style="width:${p.toFixed(1)}%"></div></div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px"><div style="font-family:var(--mono);font-size:.58rem;color:var(--g4)">${dn?'🎉 Reached!':fmt(nd)+' to go'+(mp?' · '+fmt(mp)+'/mo':'')}</div><div style="font-family:var(--display);font-size:1.3rem">${p.toFixed(0)}%</div></div><div style="display:flex;gap:7px"><button class="btn sm" onclick="wdGoal('${g.id}',50)" ${g.current<50?'disabled':''}>−50</button><button class="btn prim sm" onclick="openAddToGoal('${g.id}')">＋ Add</button></div></div>`;
+  el.innerHTML=DB.goals.map(g=>{
+    const p=Math.min(g.current/g.target*100,100); const done=p>=100;
+    const dl=g.date?Math.ceil((new Date(g.date)-new Date())/86400000):null;
+    const mo=g.date&&dl>0?((g.target-g.current)/Math.max(dl/30,1)):0;
+    return`<div class="gcard${done?' done':''}"><div class="gchead"><div class="gcic">${g.icon}</div><div class="gcinfo"><div class="gcnm">${safe(g.name)}</div><div class="gcsub">${fmt(g.current)} / ${fmt(g.target)}${dl!==null?' · '+dl+'d left':''}</div></div><div class="gcpct">${p.toFixed(0)}%</div></div><div class="gpbar"><div class="gpfill" style="width:${p}%"></div></div>${done?'<div style="text-align:center;font-size:1.5rem;margin:8px 0">🎉 Goal Reached!</div>':'<div class="gcpace">Monthly pace needed: '+fmt(mo)+'</div>'}<div class="gcbtns"><button class="btn sm" onclick="openAddToGoal('${g.id}')">＋ Add</button><button class="btn sm" onclick="wdGoal('${g.id}')">−50</button><button class="btn sm danger" onclick="delGoal('${g.id}')">✕</button></div></div>`;
   }).join('');
 }
 
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
 //  REPORTS
-// ════════════════════════════════════════════════════
-function setRP(p,btn){DB.rpP=p;document.querySelectorAll('#rppills .pill').forEach(x=>x.classList.remove('on'));btn.classList.add('on');renderReports()}
-function rpTx(){const n=new Date();let s;if(DB.rpP==='month')s=new Date(n.getFullYear(),n.getMonth(),1);else if(DB.rpP==='quarter')s=new Date(n.getFullYear(),Math.floor(n.getMonth()/3)*3,1);else s=new Date(n.getFullYear(),0,1);return DB.transactions.filter(t=>new Date(t.date)>=s)}
-
+// ══════════════════════════════════════════════
+let cLine=null, cPie=null;
+function setRP(p,btn){ DB.rpP=p; document.querySelectorAll('#rppills .pill').forEach(x=>x.classList.toggle('on',x.dataset.rp===p)); save(); renderReports(); }
+function rpTx(){
+  const now=new Date(); const p=DB.rpP||'month';
+  return DB.transactions.filter(t=>{
+    const d=new Date(t.date);
+    if(p==='month')return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth();
+    if(p==='quarter'){const q=Math.floor(now.getMonth()/3); return d.getFullYear()===now.getFullYear()&&Math.floor(d.getMonth()/3)===q;}
+    return d.getFullYear()===now.getFullYear();
+  });
+}
 function renderReports(){
   const tx=rpTx();
   if(!DB.transactions.length){
     G('rpstat').innerHTML='';
-    try{if(cLine){cLine.destroy();cLine=null}}catch(e){}
-    try{if(cPie){cPie.destroy();cPie=null}}catch(e){}
     G('hmgrid').innerHTML='';
-    G('rptl').innerHTML=`<div class="ob" style="border:none;box-shadow:none;background:transparent;padding:8px 0">
-      <span class="ob-icon">📈</span>
-      <div class="ob-title">Reports & Analytics</div>
-      <div class="ob-desc">Get deep insights into your spending patterns, income trends, savings rate, and daily averages — all visualised in beautiful charts.</div>
-      <div class="ob-features">
-        <div class="ob-feat"><div class="ob-feat-ic">📉</div><div>Income vs Expense line chart (6 months)</div></div>
-        <div class="ob-feat"><div class="ob-feat-ic">🥧</div><div>Category spending pie chart</div></div>
-        <div class="ob-feat"><div class="ob-feat-ic">🔥</div><div>84-day spending heatmap</div></div>
-        <div class="ob-feat"><div class="ob-feat-ic">⏱</div><div>Transaction timeline view</div></div>
-        <div class="ob-feat"><div class="ob-feat-ic">📆</div><div>Filter by Month, Quarter, or Year</div></div>
-        <div class="ob-feat"><div class="ob-feat-ic">💯</div><div>Savings rate & daily average stats</div></div>
-      </div>
-      <div class="ob-desc" style="margin-bottom:16px">Reports need transactions to work with. Add some income and expenses first, then come back here to see your data come to life.</div>
-      <div class="ob-cta"><button class="btn prim" onclick="go('transactions',document.querySelector('[data-pg=transactions]'))">＋ Add Transactions First</button></div>
-    </div>`;
+    G('rptl').innerHTML=`<div class="ob"><span class="ob-icon">📈</span><div class="ob-title">Reports & Analytics</div><div class="ob-desc">Get deep insights into your spending patterns. Add some transactions first!</div><div class="ob-cta"><button class="btn prim" onclick="go('transactions',document.querySelector('[data-pg=transactions]'))">＋ Add Transactions First</button></div></div>`;
     return;
   }
-  const inc=tx.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);const exp=tx.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);const sr=inc>0?((inc-exp)/inc*100).toFixed(1):0;const days=[...new Set(tx.map(t=>t.date))].length||1;
-  G('rpstat').innerHTML=`<div class="sbox stripe"><div class="slbl">Income</div><div class="sval">${fmt(inc)}</div></div><div class="sbox"><div class="slbl">Expenses</div><div class="sval">${fmt(exp)}</div></div><div class="sbox hatch"><div class="slbl">Savings Rate</div><div class="sval">${sr}%</div></div><div class="sbox"><div class="slbl">Avg/Day</div><div class="sval">${fmt(exp/days)}</div></div>`;
-  const m6=[];for(let i=5;i>=0;i--){const d=new Date();d.setMonth(d.getMonth()-i);m6.push({k:d.toISOString().slice(0,7),l:d.toLocaleString('default',{month:'short'})})}
-  if(cLine){cLine.destroy();cLine=null}
-  cLine=new Chart(G('ch-line'),{type:'line',data:{labels:m6.map(m=>m.l),datasets:[{label:'Income',data:m6.map(m=>DB.transactions.filter(t=>t.date.startsWith(m.k)&&t.type==='income').reduce((s,t)=>s+t.amount,0)),borderColor:'#888',tension:.3,pointRadius:4,backgroundColor:'rgba(0,0,0,.04)'},{label:'Expense',data:m6.map(m=>DB.transactions.filter(t=>t.date.startsWith(m.k)&&t.type==='expense').reduce((s,t)=>s+t.amount,0)),borderColor:'#000',tension:.3,pointRadius:4,backgroundColor:'rgba(0,0,0,.08)'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{family:'Space Mono',size:9},color:'#000'}}},scales:{x:{ticks:{font:{family:'Space Mono',size:8}}},y:{ticks:{font:{family:'Space Mono',size:8}}}}}});
-  const cs=catSpend(tx);if(cPie){cPie.destroy();cPie=null}
-  if(Object.keys(cs).length)cPie=new Chart(G('ch-pie'),{type:'pie',data:{labels:Object.keys(cs).map(k=>catOf(k).name),datasets:[{data:Object.values(cs),backgroundColor:['#000','#2a2a2a','#444','#666','#888','#aaa','#bbb','#ccc'],borderColor:'#fff',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{family:'Space Mono',size:9},color:'#000',boxWidth:10}}}}});
-  const hm=G('hmgrid');hm.innerHTML='';
-  for(let i=83;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const k=d.toISOString().slice(0,10);const a=DB.transactions.filter(t=>t.date===k&&t.type==='expense').reduce((s,t)=>s+t.amount,0);const v=a===0?0:a<20?1:a<50?2:a<100?3:4;const c=document.createElement('div');c.className='hmc';c.dataset.v=v;c.title=`${k}: ${fmt(a)}`;hm.appendChild(c)}
-  const sorted=[...tx].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,10);
-  G('rptl').innerHTML=sorted.length?sorted.map(t=>{const c=catOf(t.category);return`<div class="tli"><div class="tldot"></div><div class="tldate">${t.date} · ${t.method||'Cash'}</div><div class="tlbox"><div style="display:flex;justify-content:space-between"><strong>${safe(t.description)}</strong><span style="font-family:var(--mono)">${t.type==='income'?'+':'-'}${fmt(t.amount)}</span></div><div style="font-size:.72rem;color:var(--g5);margin-top:2px">${c.icon} ${c.name}${t.notes?' · '+safe(t.notes):''}</div></div></div>`}).join(''):'<div class="emp"><p>No transactions</p></div>';
+  const inc=tx.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const exp=tx.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  const sr=inc>0?((inc-exp)/inc*100).toFixed(1):0;
+  const days=[...new Set(tx.map(t=>t.date))].length||1;
+  G('rpstat').innerHTML=`<div class="sbox"><div class="slbl">Income</div><div class="sval">${fmt(inc)}</div></div><div class="sbox"><div class="slbl">Expenses</div><div class="sval">${fmt(exp)}</div></div><div class="sbox"><div class="slbl">Savings Rate</div><div class="sval">${sr}%</div></div><div class="sbox"><div class="slbl">Daily Avg</div><div class="sval">${fmt(exp/days)}</div></div>`;
+  // Line chart
+  if(cLine){cLine.destroy();cLine=null;}
+  const now2=new Date(); const lbs=[]; const incD=[]; const expD=[];
+  for(let i=5;i>=0;i--){ const d=new Date(now2.getFullYear(),now2.getMonth()-i,1); const mo=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); lbs.push(d.toLocaleString('default',{month:'short'})); const mt=DB.transactions.filter(t=>t.date.startsWith(mo)); incD.push(mt.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0)); expD.push(mt.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0)); }
+  cLine=new Chart(G('ch-line'),{type:'line',data:{labels:lbs,datasets:[{label:'Income',data:incD,borderColor:'#666',backgroundColor:'rgba(100,100,100,.08)',tension:.3,fill:true},{label:'Expense',data:expD,borderColor:'#000',backgroundColor:'rgba(0,0,0,.06)',tension:.3,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{family:'Space Mono',size:9},boxWidth:12}}},scales:{x:{ticks:{font:{family:'Space Mono',size:9}}},y:{ticks:{font:{family:'Space Mono',size:9}}}}}});
+  // Pie chart
+  if(cPie){cPie.destroy();cPie=null;}
+  const cs2=catSpend(tx); const ks2=Object.keys(cs2);
+  if(ks2.length){
+    const pal=['#000','#444','#777','#aaa','#ccc','#333','#666','#999','#bbb','#ddd'];
+    cPie=new Chart(G('ch-pie'),{type:'pie',data:{labels:ks2.map(k=>catOf(k).name),datasets:[{data:Object.values(cs2),backgroundColor:ks2.map((_,i)=>pal[i%pal.length]),borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Space Mono',size:9},boxWidth:12}}}}});
+  }
+  // Heatmap
+  const hm={}; DB.transactions.filter(t=>t.type==='expense').forEach(t=>hm[t.date]=(hm[t.date]||0)+t.amount);
+  const maxv=Math.max(...Object.values(hm),1); const cells=[]; const now3=new Date();
+  for(let i=83;i>=0;i--){ const d=new Date(now3); d.setDate(d.getDate()-i); const k=d.toISOString().slice(0,10); const v=hm[k]||0; const op=v?(.2+.8*(v/maxv)).toFixed(2):0; cells.push(`<div class="hcell" title="${k}: ${fmt(v)}" style="background:${v?`rgba(0,0,0,${op})`:'var(--g2)'}"></div>`); }
+  G('hmgrid').innerHTML=cells.join('');
+  // Timeline
+  G('rptl').innerHTML=tx.slice(0,10).map(t=>`<div class="tlrow"><div class="tldate">${t.date}</div><div class="tlinfo"><div class="tlnm">${safe(t.description)}</div><div class="tlsub">${catOf(t.category).icon} ${catOf(t.category).name}${t.method?' · '+t.method:''}</div></div><div class="tlamt ${t.type}">${t.type==='income'?'+':'-'}${fmt(t.amount)}</div></div>`).join('');
 }
 
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
 //  RECURRING
-// ════════════════════════════════════════════════════
-function openRec(){G('fr-cat').innerHTML=DB.categories.map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');['fr-nm','fr-amt'].forEach(id=>G(id).value='');G('fr-dt').value=today();G('fr-freq').value='monthly';openM('m-rec')}
-function saveRec(){const nm=G('fr-nm').value.trim();const amt=parseFloat(G('fr-amt').value);if(!nm){toast('⚠ Enter a name');return}if(!amt||amt<=0){toast('⚠ Enter a valid amount');return}DB.recurring.push({id:uid(),name:nm,amount:amt,frequency:G('fr-freq').value,category:G('fr-cat').value,nextDate:G('fr-dt').value,createdAt:new Date().toISOString()});save();closeM('m-rec');renderRec();toast('✓ Recurring added')}
-function delRec(id){DB.recurring=DB.recurring.filter(r=>r.id!==id);save();renderRec();toast('Removed')}
-function logRec(id){const r=DB.recurring.find(r=>r.id===id);if(!r)return;DB.transactions.unshift({id:uid(),amount:r.amount,date:today(),description:r.name,category:r.category,type:'expense',method:'Auto',tags:['subscription'],notes:'From recurring',createdAt:new Date().toISOString()});save();badge();renderDash();toast('✓ Logged "'+r.name+'"')}
-
+// ══════════════════════════════════════════════
+function openRec(){
+  G('fr-nm').value=''; G('fr-amt').value=''; G('fr-freq').value='monthly'; G('fr-dt').value=''; G('fr-cat').innerHTML=DB.categories.map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');
+  openM('m-rec');
+}
+function saveRec(){
+  const nm=G('fr-nm').value.trim(); const amt=parseFloat(G('fr-amt').value);
+  if(!nm){toast('⚠ Enter name');return;} if(!amt||amt<=0){toast('⚠ Enter amount');return;}
+  DB.recurring.push({id:uid(),name:nm,amount:amt,frequency:G('fr-freq').value,category:G('fr-cat').value,nextDate:G('fr-dt').value,createdAt:new Date().toISOString()});
+  save(); closeM('m-rec'); renderRec(); toast('✓ Added recurring expense');
+}
+function logRec(id){
+  const r=DB.recurring.find(x=>x.id===id); if(!r)return;
+  DB.transactions.unshift({id:uid(),amount:r.amount,date:today(),description:r.name,category:r.category,type:'expense',method:'',notes:'',tags:[],createdAt:new Date().toISOString()});
+  save(); badge(); toast('✓ Logged: '+r.name);
+}
+function delRec(id){ if(!confirm('Delete this recurring expense?'))return; DB.recurring=DB.recurring.filter(r=>r.id!==id); save(); renderRec(); }
 function renderRec(){
-  const mo=DB.recurring.reduce((s,r)=>s+r.amount*(RMULT[r.frequency]||1),0);
-  G('recm').textContent=fmt(mo);G('reca').textContent=fmt(mo*12);G('recct').textContent=DB.recurring.length;
   const el=G('reclist');
   if(!DB.recurring.length){
-    el.innerHTML=`<div class="ob">
-      <span class="ob-icon">🔁</span>
-      <div class="ob-title">Recurring Expenses</div>
-      <div class="ob-desc">Track your subscriptions, rent, EMIs, and any bills that repeat regularly. SpendWise calculates your total monthly and annual commitment automatically.</div>
-      <div class="ob-features">
-        <div class="ob-feat"><div class="ob-feat-ic">📺</div><div>Streaming: Netflix, Spotify, Disney+</div></div>
-        <div class="ob-feat"><div class="ob-feat-ic">🏠</div><div>Housing: Rent, EMI, maintenance</div></div>
-        <div class="ob-feat"><div class="ob-feat-ic">💪</div><div>Health: Gym, insurance, medicines</div></div>
-        <div class="ob-feat"><div class="ob-feat-ic">💡</div><div>Utilities: Electricity, internet, phone</div></div>
-      </div>
-      <div class="ob-steps">
-        <div class="ob-step"><div class="ob-step-num">1</div><div class="ob-step-txt"><div class="ob-step-title">Click ＋ Add Recurring</div><div class="ob-step-desc">Enter the name of your subscription or bill, like "Netflix" or "House Rent".</div></div></div>
-        <div class="ob-step"><div class="ob-step-num">2</div><div class="ob-step-txt"><div class="ob-step-title">Set amount & frequency</div><div class="ob-step-desc">Choose daily, weekly, monthly, quarterly, or yearly. SpendWise converts everything to a monthly total.</div></div></div>
-        <div class="ob-step"><div class="ob-step-num">3</div><div class="ob-step-txt"><div class="ob-step-title">Hit "Log Now" when due</div><div class="ob-step-desc">When a payment is due, tap Log Now to instantly add it as a transaction — no re-entering details.</div></div></div>
-      </div>
-      <div class="ob-cta"><button class="btn prim" onclick="openRec()">＋ Add Your First Recurring Expense</button></div>
-    </div>`;return;
+    el.innerHTML=`<div class="ob"><span class="ob-icon">🔁</span><div class="ob-title">Recurring Expenses</div><div class="ob-desc">Track your subscriptions, rent, EMIs, and regular bills automatically.</div><div class="ob-steps"><div class="ob-step"><div class="ob-step-num">1</div><div class="ob-step-txt"><div class="ob-step-title">Click ＋ Add Recurring</div><div class="ob-step-desc">Enter the name, amount and frequency of your bill.</div></div></div><div class="ob-step"><div class="ob-step-num">2</div><div class="ob-step-txt"><div class="ob-step-title">Hit Log Now when due</div><div class="ob-step-desc">One tap records the payment as a real transaction instantly.</div></div></div></div><div class="ob-cta"><button class="btn prim" onclick="openRec()">＋ Add Your First Recurring Expense</button></div></div>`;
+    G('recm').textContent=G('reca').textContent=fmt(0); G('recct').textContent='0'; return;
   }
-  el.innerHTML=DB.recurring.map(r=>{const c=catOf(r.category);const di=r.nextDate?Math.ceil((new Date(r.nextDate)-new Date())/86400000):null;const ov=di!==null&&di<0;
-    return`<div class="card" style="padding:13px;display:flex;align-items:center;gap:13px;flex-wrap:wrap"><div class="txic">${c.icon}</div><div style="flex:1;min-width:100px"><div style="font-weight:700">${safe(r.name)}</div><div style="font-family:var(--mono);font-size:.6rem;color:var(--g5)">${r.frequency.toUpperCase()} · ${c.name}${di!==null?' · '+(ov?'<b>'+'OVERDUE'+' '+Math.abs(di)+'d</b>':'Due'+' '+di+'d'):''}</div></div><div style="text-align:right;flex-shrink:0"><div style="font-family:var(--mono);font-weight:700">${fmt(r.amount)}</div><span style="font-family:var(--mono);font-size:.54rem;background:var(--b);color:var(--w);padding:1px 5px">↺ ${r.frequency}</span></div><div style="display:flex;gap:6px;flex-shrink:0"><button class="btn sm" onclick="logRec('${r.id}')">Log Now</button><button class="iBtn" style="width:27px;height:27px;font-size:.72rem" onclick="delRec('${r.id}')">✕</button></div></div>`;
+  const mo=DB.recurring.reduce((s,r)=>s+r.amount*(RMULT[r.frequency]||1),0);
+  G('recm').textContent=fmt(mo); G('reca').textContent=fmt(mo*12); G('recct').textContent=DB.recurring.length;
+  el.innerHTML=DB.recurring.map(r=>{
+    const di=r.nextDate?Math.ceil((new Date(r.nextDate)-new Date())/86400000):null;
+    const ov=di!==null&&di<0;
+    return`<div class="recitem"><div class="recinfo"><div class="recic">${catOf(r.category).icon}</div><div><div class="recnm">${safe(r.name)}</div><div class="recsub">${r.frequency} · ${catOf(r.category).name}${di!==null?(' · '+(ov?'<b>OVERDUE '+Math.abs(di)+'d</b>':'Due '+di+'d')):''}  </div></div></div><div style="display:flex;align-items:center;gap:8px"><div class="recamt">${fmt(r.amount)}</div><button class="btn sm" onclick="logRec('${r.id}')">Log Now</button><button class="btn sm danger" onclick="delRec('${r.id}')">✕</button></div></div>`;
   }).join('');
 }
 
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
 //  CATEGORIES
-// ════════════════════════════════════════════════════
-function openCat(){G('fc-nm').value='';openM('m-cat')}
-function saveCat(){const nm=G('fc-nm').value.trim();if(!nm){toast('⚠ Enter a name');return}const id=nm.toLowerCase().replace(/[^a-z0-9]+/g,'-');if(DB.categories.find(c=>c.id===id)){toast('Already exists');return}DB.categories.push({id,name:nm,icon:G('fc-ic').value});save();closeM('m-cat');renderCats();toast('✓ Category added')}
-function delCat(id){if(DEF_IDS.includes(id)){toast('Cannot delete default');return}if(!confirm('Delete?'))return;DB.categories=DB.categories.filter(c=>c.id!==id);save();renderCats();toast('Deleted')}
-
+// ══════════════════════════════════════════════
+function openCat(){ G('fc-nm').value=''; G('fc-ic').value='📦'; openM('m-cat'); }
+function saveCat(){
+  const nm=G('fc-nm').value.trim(); if(!nm){toast('⚠ Enter category name');return;}
+  DB.categories.push({id:uid(),name:nm,icon:G('fc-ic').value||'📦'}); save(); closeM('m-cat'); renderCats(); toast('✓ Category added');
+}
+function delCat(id){ if(!confirm('Delete this category?'))return; DB.categories=DB.categories.filter(c=>c.id!==id); save(); renderCats(); }
 function renderCats(){
-  const mx=mTx();const cs=catSpend(mx);
+  const mx=mTx(); const cs=catSpend(mx);
   const hasCustom=DB.categories.some(c=>!DEF_IDS.includes(c.id));
   const onboarding=hasCustom?'':
-    `<div class="ob" style="margin-bottom:20px">
-      <span class="ob-icon">🗂️</span>
-      <div class="ob-title">${'Categories'}</div>
-      <div class="ob-desc">${'Categories help you organise every transaction.'}</div>
-      <div class="ob-features">
-        <div class="ob-feat"><div class="ob-feat-ic">🍔</div><div>${'Food & Dining'}</div></div>
-        <div class="ob-feat"><div class="ob-feat-ic">🚗</div><div>${'Transport'}</div></div>
-        <div class="ob-feat"><div class="ob-feat-ic">🎮</div><div>${'Entertainment'}</div></div>
-        <div class="ob-feat"><div class="ob-feat-ic">🏥</div><div>${'Health'}</div></div>
-        <div class="ob-feat"><div class="ob-feat-ic">🛍️</div><div>${'Shopping'}</div></div>
-        <div class="ob-feat"><div class="ob-feat-ic">➕</div><div>${'Add your own custom category'}</div></div>
-      </div>
-      <div class="ob-cta"><button class="btn prim" onclick="openCat()">＋ ${'New Category'||'New Category'}</button></div>
-    </div>`;
+    `<div class="ob" style="margin-bottom:20px"><span class="ob-icon">🗂️</span><div class="ob-title">Categories</div><div class="ob-desc">Organise your transactions into groups. SpendWise includes 10 built-in categories plus unlimited custom ones.</div><div class="ob-features"><div class="ob-feat"><div class="ob-feat-ic">🍔</div><div>Food & Dining</div></div><div class="ob-feat"><div class="ob-feat-ic">🚗</div><div>Transport</div></div><div class="ob-feat"><div class="ob-feat-ic">🎮</div><div>Entertainment</div></div><div class="ob-feat"><div class="ob-feat-ic">🏥</div><div>Health</div></div><div class="ob-feat"><div class="ob-feat-ic">🛍️</div><div>Shopping</div></div><div class="ob-feat"><div class="ob-feat-ic">➕</div><div>Add your own custom category</div></div></div><div class="ob-cta"><button class="btn prim" onclick="openCat()">＋ Add Custom Category</button></div></div>`;
   G('catgrid').innerHTML=onboarding+DB.categories.map(c=>{
-    const sp=cs[c.id]||0;const ct=DB.transactions.filter(t=>t.category===c.id).length;
-    const def=DEF_IDS.includes(c.id);
-    return`<div class="sbox"><div style="font-size:1.8rem;margin-bottom:7px">${c.icon}</div><div style="font-weight:700;margin-bottom:3px">${safe(c.name)}</div><div style="font-family:var(--mono);font-size:.58rem;color:var(--g5)">${'Month'}: ${fmt(sp)}</div><div style="font-family:var(--mono);font-size:.58rem;color:var(--g5)">${ct} ${'transactions'}</div>${!def?`<button class="btn sm danger" style="margin-top:10px" onclick="delCat('${c.id}')">${'Delete'}</button>`:''}</div>`;
+    const sp=cs[c.id]||0; const ct=DB.transactions.filter(t=>t.category===c.id).length; const def=DEF_IDS.includes(c.id);
+    return`<div class="sbox"><div style="font-size:1.8rem;margin-bottom:7px">${c.icon}</div><div style="font-weight:700;margin-bottom:3px">${safe(c.name)}</div><div style="font-family:var(--mono);font-size:.58rem;color:var(--g5)">Month: ${fmt(sp)}</div><div style="font-family:var(--mono);font-size:.58rem;color:var(--g5)">${ct} transactions</div>${!def?`<button class="btn sm danger" style="margin-top:10px" onclick="delCat('${c.id}')">Delete</button>`:''}</div>`;
   }).join('');
 }
 
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
 //  SETTINGS
-// ════════════════════════════════════════════════════
-function togglePref(k,el){el.classList.toggle('on');DB.prefs[k]=el.classList.contains('on');save();toast((DB.prefs[k]?'✓ '+'enabled'+': ':'disabled'+': ')+k)}
-function setCur(v){DB.currency=v;save();renderDash();toast('currency_changed'+': '+v)}
-function setTheme(cls,card){THEMES.forEach(t=>{if(t)document.body.classList.remove(t)});if(cls)document.body.classList.add(cls);DB.theme=cls;save();syncThemePicker();renderDash();toast('✓ Theme applied')}
-function syncThemePicker(){document.querySelectorAll('.tcrd').forEach(c=>c.classList.toggle('on',c.dataset.t===(DB.theme||'')))}
-function applyTheme(){THEMES.forEach(t=>{if(t)document.body.classList.remove(t)});if(DB.theme)document.body.classList.add(DB.theme)}
-
-function expCSV(){const rows=[['Date','Description','Amount','Type','Category','Method','Tags','Notes']];DB.transactions.forEach(t=>rows.push([t.date,`"${t.description}"`,t.amount,t.type,catOf(t.category).name,t.method||'Cash',(t.tags||[]).join(';'),`"${t.notes||''}"`]));dl(rows.map(r=>r.join(',')).join('\n'),'spendwise-'+today()+'.csv','text/csv');toast('✓ Exported')}
-function backupJSON(){dl(JSON.stringify(DB,null,2),'spendwise-backup-'+today()+'.json','application/json');toast('✓ Backup downloaded')}
-function dl(c,f,t){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:t}));a.download=f;a.click()}
-function importFile(inp){const file=inp.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{try{if(file.name.endsWith('.json')){const p=JSON.parse(e.target.result);DB=Object.assign({},DB,p);save();badge();renderDash();toast('✓ Imported')}else{const lines=e.target.result.trim().split('\n').slice(1);let n=0;lines.forEach(l=>{const p=l.split(',');const date=p[0]?.trim(),amt=parseFloat(p[2]);if(date&&amt){DB.transactions.push({id:uid(),date,description:(p[1]||'').replace(/"/g,''),amount:amt,type:(p[3]||'expense').trim(),category:'other',method:(p[5]||'Cash').trim(),tags:[],createdAt:new Date().toISOString()});n++}});DB.transactions.sort((a,b)=>new Date(b.date)-new Date(a.date));save();badge();renderDash();toast('✓ Imported '+n+' rows')}}catch(err){toast('✕ Import failed')}};r.readAsText(file);inp.value=''}
+// ══════════════════════════════════════════════
+function setTheme(cls,card){
+  DB.theme=cls; document.body.className=cls; save(); syncThemePicker();
+}
+function syncThemePicker(){
+  document.querySelectorAll('.tcrd').forEach(c=>c.classList.toggle('on',c.dataset.t===(DB.theme||'')));
+}
+function togglePref(k,el){
+  DB.prefs[k]=!DB.prefs[k]; el.classList.toggle('on',DB.prefs[k]); save();
+  toast((DB.prefs[k]?'✓ Enabled: ':'Disabled: ')+k);
+}
+function expCSV(){
+  if(!DB.transactions.length){toast('No transactions to export');return;}
+  const hdr='Date,Description,Category,Type,Amount,Method,Notes,Tags';
+  const rows=DB.transactions.map(t=>[t.date,`"${t.description}"`,catOf(t.category).name,t.type,t.amount,t.method||'',t.notes||'',(t.tags||[]).join(';')].join(','));
+  dl([hdr,...rows].join('\n'),'spendwise-transactions.csv','text/csv');
+  toast('✓ Exported');
+}
+function backupJSON(){
+  dl(JSON.stringify(DB,null,2),'spendwise-backup.json','application/json');
+  toast('✓ Backup downloaded');
+}
+function dl(data,name,type){
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([data],{type})); a.download=name; a.click();
+}
+function importFile(inp){
+  const f=inp.files[0]; if(!f)return;
+  const rd=new FileReader();
+  rd.onload=e=>{
+    try{
+      if(f.name.endsWith('.json')){
+        const p=JSON.parse(e.target.result);
+        DB=Object.assign({},DB,p); if(!DB.categories?.length)DB.categories=JSON.parse(JSON.stringify(DEF_EXP_CATS));
+        save(); badge(); renderDash(); toast('✓ Data imported');
+      } else {
+        const rows=e.target.result.split('\n').slice(1).filter(Boolean);
+        rows.forEach(row=>{
+          const [date,desc,cat,type,amount,method,notes,tags]=row.split(',');
+          if(!date||!amount)return;
+          const catId=DB.categories.find(c=>c.name===cat?.trim())?.id||'other';
+          DB.transactions.push({id:uid(),date:date.trim(),description:(desc||'').replace(/^"|"$/g,''),category:catId,type:type?.trim()||'expense',amount:parseFloat(amount)||0,method:method?.trim()||'',notes:notes?.trim()||'',tags:(tags||'').split(';').filter(Boolean),createdAt:new Date().toISOString()});
+        });
+        save(); badge(); renderDash(); toast('✓ Imported '+rows.length+' rows');
+      }
+    }catch(ex){toast('⚠ Import failed: '+ex.message);}
+  };
+  rd.readAsText(f); inp.value='';
+}
+function loadDemo(){
+  const cats={food:'food',transport:'transport',entertainment:'entertainment',health:'health',shopping:'shopping',utilities:'utilities',housing:'housing',salary:'salary',freelance:'freelance'};
+  const mo=new Date().toISOString().slice(0,7);
+  const txs=[
+    {desc:'Lunch at restaurant',cat:'food',amt:450,type:'expense'},{desc:'Grocery shopping',cat:'food',amt:1200,type:'expense'},
+    {desc:'Uber ride',cat:'transport',amt:180,type:'expense'},{desc:'Metro card recharge',cat:'transport',amt:500,type:'expense'},
+    {desc:'Netflix subscription',cat:'entertainment',amt:649,type:'expense'},{desc:'Movie tickets',cat:'entertainment',amt:600,type:'expense'},
+    {desc:'Doctor visit',cat:'health',amt:500,type:'expense'},{desc:'Medicines',cat:'health',amt:320,type:'expense'},
+    {desc:'New shoes',cat:'shopping',amt:2499,type:'expense'},{desc:'Clothes',cat:'shopping',amt:1800,type:'expense'},
+    {desc:'Electricity bill',cat:'utilities',amt:850,type:'expense'},{desc:'Internet bill',cat:'utilities',amt:699,type:'expense'},
+    {desc:'Monthly rent',cat:'housing',amt:12000,type:'expense'},{desc:'Coffee',cat:'food',amt:120,type:'expense'},
+    {desc:'Dinner out',cat:'food',amt:800,type:'expense'},{desc:'Auto rickshaw',cat:'transport',amt:60,type:'expense'},
+    {desc:'Spotify',cat:'entertainment',amt:119,type:'expense'},{desc:'Gym membership',cat:'health',amt:1000,type:'expense'},
+    {desc:'Books',cat:'shopping',amt:450,type:'expense'},{desc:'Water bill',cat:'utilities',amt:200,type:'expense'},
+    {desc:'Snacks',cat:'food',amt:200,type:'expense'},{desc:'Petrol',cat:'transport',amt:400,type:'expense'},
+    {desc:'Amazon purchase',cat:'shopping',amt:999,type:'expense'},{desc:'Maintenance',cat:'housing',amt:500,type:'expense'},
+    {desc:'Fruits',cat:'food',amt:350,type:'expense'},
+    {desc:'Monthly salary',cat:'salary',amt:45000,type:'income'},{desc:'Freelance project',cat:'freelance',amt:8000,type:'income'},{desc:'Bonus',cat:'salary',amt:5000,type:'income'},
+  ];
+  txs.forEach((t,i)=>{ DB.transactions.push({id:uid(),amount:t.amt,date:`${mo}-${String(i%28+1).padStart(2,'0')}`,description:t.desc,category:t.cat,type:t.type,method:['Cash','UPI','Card','Bank Transfer'][i%4],notes:'',tags:[],createdAt:new Date().toISOString()}); });
+  DB.budgets={food:3000,entertainment:1500,transport:1000,health:2000,shopping:3000};
+  DB.goals=[{id:uid(),name:'Emergency Fund',target:50000,current:12000,date:new Date(Date.now()+180*86400000).toISOString().slice(0,10),icon:'🛡️',createdAt:new Date().toISOString()}];
+  DB.recurring=[{id:uid(),name:'Netflix',amount:649,frequency:'monthly',category:'entertainment',nextDate:new Date(Date.now()+15*86400000).toISOString().slice(0,10),createdAt:new Date().toISOString()},{id:uid(),name:'House Rent',amount:12000,frequency:'monthly',category:'housing',nextDate:new Date(Date.now()+5*86400000).toISOString().slice(0,10),createdAt:new Date().toISOString()}];
+  save(); badge(); go('dashboard',document.querySelector('[data-pg="dashboard"]')); toast('✓ Demo data loaded!');
+}
 function clearAll(){
   if(!confirm('Delete ALL data? This cannot be undone.'))return;
   if(!confirm('Are you sure? All transactions, budgets, goals and recurring will be deleted.'))return;
-  DB.transactions=[];
-  DB.budgets={};
-  DB.goals=[];
-  DB.recurring=[];
-  DB.txFt='all';
-  DB.rpP='month';
+  DB.transactions=[]; DB.budgets={}; DB.goals=[]; DB.recurring=[]; DB.txFt='all'; DB.rpP='month';
   DB.categories=JSON.parse(JSON.stringify(DEF_EXP_CATS));
-  save();
-  badge();
-  // Navigate to dashboard and re-render everything
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('show'));
-  document.querySelectorAll('.sb-lnk').forEach(l=>l.classList.remove('on'));
-  G('pg-dashboard').classList.add('show');
-  const dl=document.querySelector('.sb-lnk[data-pg="dashboard"]');
-  if(dl)dl.classList.add('on');
-  G('pg-title').textContent=TITLES['dashboard']||'Dashboard';
-  renderDash();
-  toast('✓ All data cleared');
+  save(); badge(); go('dashboard',document.querySelector('[data-pg="dashboard"]')); toast('✓ All data cleared');
 }
-function loadDemo(){const cats=['food','transport','entertainment','health','shopping','utilities'];const descs={food:['Grocery Store','Restaurant','Coffee','Takeaway'],transport:['Uber','Gas Station','Bus Pass','Parking'],entertainment:['Netflix','Cinema','Spotify','Gaming'],health:['Pharmacy','Gym','Doctor'],shopping:['Amazon','Clothing'],utilities:['Electricity','Internet','Phone']};const n=new Date();for(let i=0;i<25;i++){const d=new Date(n);d.setDate(d.getDate()-Math.floor(Math.random()*60));const cat=cats[Math.floor(Math.random()*cats.length)];const ls=descs[cat];DB.transactions.push({id:uid(),date:d.toISOString().slice(0,10),description:ls[Math.floor(Math.random()*ls.length)],amount:parseFloat((Math.random()*150+5).toFixed(2)),type:'expense',category:cat,method:['Cash','Credit Card','Debit Card'][Math.floor(Math.random()*3)],tags:[],createdAt:d.toISOString()})}for(let i=0;i<3;i++){const d=new Date(n);d.setMonth(d.getMonth()-i);d.setDate(1);DB.transactions.push({id:uid(),date:d.toISOString().slice(0,10),description:'Monthly Salary',amount:3500,type:'income',category:'salary',method:'Bank Transfer',tags:['essential'],createdAt:d.toISOString()})}if(!DB.budgets.food)DB.budgets.food=300;if(!DB.budgets.entertainment)DB.budgets.entertainment=150;if(!DB.budgets.transport)DB.budgets.transport=200;if(!DB.goals.length)DB.goals.push({id:uid(),name:'Emergency Fund',target:5000,current:1800,date:'2025-12-31',icon:'💰',createdAt:new Date().toISOString()});if(DB.recurring.length<2){DB.recurring.push({id:uid(),name:'Netflix',amount:15.99,frequency:'monthly',category:'entertainment',nextDate:today(),createdAt:new Date().toISOString()});DB.recurring.push({id:uid(),name:'Gym',amount:40,frequency:'monthly',category:'health',nextDate:today(),createdAt:new Date().toISOString()})}DB.transactions.sort((a,b)=>new Date(b.date)-new Date(a.date));save();badge();renderDash();toast('✓ Demo loaded')}
 
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════
+function toast(msg){
+  const el=G('snk'); el.textContent=msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2800);
+}
+
+// ══════════════════════════════════════════════
 //  PWA
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
 let pwaDef=null;
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();pwaDef=e;if(!localStorage.getItem('inst-ok'))setTimeout(()=>G('instb').classList.add('show'),5000)});
-function doInst(){if(pwaDef){pwaDef.prompt();pwaDef.userChoice.then(r=>{if(r.outcome==='accepted')toast('✓ Installed!');pwaDef=null;dimInst()})}}
-function dimInst(){G('instb').classList.remove('show');localStorage.setItem('inst-ok','1')}
-if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();pwaDef=e;setTimeout(()=>{G('instb').classList.add('show');},5000);});
+function doInst(){if(pwaDef){pwaDef.prompt();pwaDef.userChoice.then(()=>{pwaDef=null;dimInst();});}}
+function dimInst(){G('instb').classList.remove('show');}
+if('serviceWorker'in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});}
 
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
 //  AI BOT — PENNY
-// ════════════════════════════════════════════════════
-let botOpen=false;
-
+// ══════════════════════════════════════════════
 function toggleBot(){
-  botOpen=!botOpen;
-  G('bot').classList.toggle('show',botOpen);
-  if(botOpen&&G('bmsgs').children.length===0)botGreet();
-  if(botOpen)setTimeout(()=>G('binput').focus(),100);
+  const bot=G('bot'); const show=bot.classList.toggle('show');
+  if(show&&!G('bmsgs').children.length)botGreet();
 }
-
-
-// ════════════════════════════════════════════════════
-//  BOT LANGUAGE STRINGS — Penny speaks your language
-// ════════════════════════════════════════════════════
-
-// Fallback for languages without full bot translations — use English
-['te','kn','ml','bn','mr'].forEach(code=>{BOT_LANG[code]=BOT_LANG.en;});
-
-// Bot language accessor — returns string for current lang with fallback to English
-
+function scrollBot(){ const m=G('bmsgs'); m.scrollTop=m.scrollHeight; }
+function addMsg(text,who){
+  const now=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  G('bmsgs').insertAdjacentHTML('beforeend',`<div class="bmsg ${who}"><div class="bbub">${mdLite(safe(text))}</div><div class="btime">${who==='bot'?'Penny · ':''}${now}</div></div>`);
+  scrollBot();
+}
 function botGreet(){
   const mx=mTx();
   const xp=mx.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
   const ic=mx.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
   const hr=new Date().getHours();
-  const gr=hr<12?'':hr<17?'':'';
+  const gr=hr<12?'Good morning':hr<17?'Good afternoon':'Good evening';
   const hasData=DB.transactions.length>0;
-  const body=hasData?''.replace('{inc}',fmt(ic)).replace('{exp}',fmt(xp)).replace('{net}',fmt(ic-xp)):'';
-  botSay(gr+'! '+''+'\n\n'+body);
+  const body=hasData
+    ?`This month: **${fmt(ic)}** earned · **${fmt(xp)}** spent · Net **${fmt(ic-xp)}**.\n\nAsk me about Goals, Budget, Reports or any page!`
+    :"You haven't added any data yet.\n\n• How to add **transactions**\n• Setting up **budgets**\n• Creating **savings goals**\n\nJust ask! 😊";
+  botSay(`${gr}! 👋 I'm **Penny**, your SpendWise AI.\n\n${body}`);
 }
-
-function sendBot(){const inp=G('binput');const msg=inp.value.trim();if(!msg)return;inp.value='';askBot(msg)}
-
-function askBot(q){
-  addMsg(q,'usr');
-  const tid='ty'+Date.now();
-  G('bmsgs').insertAdjacentHTML('beforeend',`<div id="${tid}" class="btyping"><span></span><span></span><span></span></div>`);
-  scrollBot();
-  setTimeout(()=>{const el=G(tid);if(el)el.remove();botSay(botAnswer(q.toLowerCase()))},600+Math.random()*500);
+function botSay(text){
+  const typing=document.createElement('div'); typing.className='btyping';
+  typing.innerHTML='<span></span><span></span><span></span>'; G('bmsgs').appendChild(typing); scrollBot();
+  setTimeout(()=>{ typing.remove(); addMsg(text,'bot'); },700);
 }
-
-function botSay(text){addMsg(text,'bot')}
-
-function addMsg(text,who){
-  const now=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-  const html=mdLite(safe(text));
-  G('bmsgs').insertAdjacentHTML('beforeend',
-    `<div class="bmsg ${who}"><div class="bbub">${html}</div><div class="btime">${who==='bot'?'Penny · ':''}${now}</div></div>`);
-  scrollBot();
+function askBot(q){ addMsg(q,'usr'); botSay(botAnswer(q)); }
+function sendBot(){
+  const inp=G('binput'); const q=inp.value.trim(); if(!q)return; inp.value=''; askBot(q);
 }
-
-function scrollBot(){const m=G('bmsgs');m.scrollTop=m.scrollHeight}
-function mdLite(s){return s.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>')}
-
+const BOT_TIPS=[
+  '💡 **50/30/20 Rule**: Spend 50% on needs, 30% on wants, save 20%.',
+  '💡 **Automate savings**: Pay yourself first — contribute to your goals on payday!',
+  '💡 **Review subscriptions**: Cancel unused ones. Check the Recurring page!',
+  '💡 **Emergency fund**: Save 3–6 months of expenses. Create a Goal for it!',
+  '💡 **Track every rupee**: Even small expenses add up. ₹50 daily = ₹18,250/year!',
+  '💡 **Budget alerts**: Enable them in Settings to get warned at 80% of any budget.',
+];
+function hit(q,kw){return kw.some(k=>q.toLowerCase().includes(k));}
 function botAnswer(q){
   const mx=mTx(); const all=DB.transactions;
   const inc=mx.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
   const exp=mx.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
   const net=inc-exp;
   const cs=catSpend(mx); const top=Object.entries(cs).sort((a,b)=>b[1]-a[1]);
-  const mo=new Date().toLocaleString(currentLang==='en'?'default':currentLang,{month:'long'});
+  const mo=new Date().toLocaleString('default',{month:'long'});
 
-  // Greeting
-  if(hit(q,['hi','hello','hey','morning','afternoon','evening','sup','yo','namaste','vanakkam','hola','bonjour','salut','konnichiwa','nihao'])){
-    const hasData=all.length>0;
-    const gr=(new Date().getHours()<12?'':new Date().getHours()<17?'':'')+'!';
-    return gr+' '+''+'\n\n'+(hasData
-      ?''.replace('{inc}',fmt(inc)).replace('{exp}',fmt(exp)).replace('{net}',fmt(net))
-      :'');
+  if(hit(q,['hi','hello','hey','morning','afternoon','evening','sup','yo'])){
+    const gr=new Date().getHours()<12?'Good morning':new Date().getHours()<17?'Good afternoon':'Good evening';
+    return`${gr}! 👋 I'm **Penny**, your SpendWise AI.\n\n${all.length?`This month: **${fmt(inc)}** earned · **${fmt(exp)}** spent · Net **${fmt(net)}**.`:"No data yet — add some transactions to get started!"}`;
   }
-
-  // Balance/overview
-  if(hit(q,['balance','overview','summary','this month','net','bakiye','残高','余额','saldo','solde','शेष','நிலுவை','رصيد'])){
-    if(!all.length) return '';
-    const days=new Date().getDate();
-    const proj=(exp/days)*new Date(new Date().getFullYear(),new Date().getMonth()+1,0).getDate();
-    return`**${''.replace('{mo}',mo)}**\n\n${''}: **${fmt(inc)}**\n${''}: **${fmt(exp)}**\n${''}: **${fmt(net)}**\n${''}: **${fmt(proj)}**\n\n${net<0?'':''}`;
+  if(hit(q,['balance','overview','summary','this month','net'])){
+    if(!all.length)return"No transactions yet! Click **＋ Add** to log your first one.";
+    const days=new Date().getDate(); const proj=(exp/days)*new Date(new Date().getFullYear(),new Date().getMonth()+1,0).getDate();
+    return`**${mo} Overview**\n\n💰 Income: **${fmt(inc)}**\n💸 Expenses: **${fmt(exp)}**\n📊 Net: **${fmt(net)}**\nProjected month-end spend: **${fmt(proj)}**\n\n${net<0?'⚠ You are spending more than you earn!':'✅ Finances look healthy!'}`;
   }
-
-  // Budget
-  if(hit(q,['budget','limit','over budget','bजेट','pट्ट','ميزانية','预算','予算','presupuesto','budget'])){
+  if(hit(q,['budget','limit','over budget'])){
     const en=Object.entries(DB.budgets);
-    if(!en.length) return '';
+    if(!en.length)return"No budgets set! Go to **Budget → ＋ Set Budget**.";
     const lines=en.map(([id,b])=>{const sp=cs[id]||0;const p=(sp/b*100).toFixed(0);return`${p>=100?'🚨':p>=80?'⚠️':'✅'} **${catOf(id).name}**: ${fmt(sp)} / ${fmt(b)} (${p}%)`}).join('\n');
     const ov=en.filter(([id,b])=>(cs[id]||0)>=b).length;
-    return`**${''.replace('{mo}',mo)}**\n\n${lines}\n\n${ov?''.replace('{n}',ov):''}`;
+    return`**Budget Status**\n\n${lines}\n\n${ov?`🚨 ${ov} budget(s) exceeded!`:'✅ All budgets on track!'}`;
   }
-
-  // Goals
-  if(hit(q,['goal','saving','savings','target','fund','लक्ष्य','இலக்கு','هدف','目标','目標','meta','objectif'])){
-    if(!DB.goals.length) return '';
-    return`**${''}**\n\n`+DB.goals.map(g=>{
-      const p=Math.min(g.current/g.target*100,100).toFixed(0);
-      const bar='█'.repeat(Math.round(p/10))+'░'.repeat(10-Math.round(p/10));
-      const dl=g.date?Math.ceil((new Date(g.date)-new Date())/86400000):null;
-      return`${g.icon} **${g.name}**\n${bar} ${p}%\n${fmt(g.current)} / ${fmt(g.target)}${dl!=null?' · '+dl+'d left':''}`;
-    }).join('\n\n')+'\n\n'+'';
+  if(hit(q,['goal','saving','savings','target','fund'])){
+    if(!DB.goals.length)return"No savings goals yet! Go to **Goals → ＋ New Goal**.";
+    return`**Your Savings Goals 🏆**\n\n`+DB.goals.map(g=>{const p=Math.min(g.current/g.target*100,100).toFixed(0);const bar='█'.repeat(Math.round(p/10))+'░'.repeat(10-Math.round(p/10));return`${g.icon} **${g.name}**\n${bar} ${p}%\n${fmt(g.current)} saved of ${fmt(g.target)}`;}).join('\n\n')+'\n\nTap **＋ Add** on any goal card to add savings!';
   }
-
-  // Recurring
-  if(hit(q,['recurring','subscription','repeat','bill','आवर्ती','மீண்டும்','متكرر','定期','サブスク','recurrente','récurrent'])){
-    if(!DB.recurring.length) return '';
+  if(hit(q,['recurring','subscription','repeat','bill'])){
+    if(!DB.recurring.length)return"No recurring expenses! Go to **Recurring → ＋ Add Recurring**.";
     const mo2=DB.recurring.reduce((s,r)=>s+r.amount*(RMULT[r.frequency]||1),0);
-    return`**${''}**\n\n`+DB.recurring.map(r=>`↺ **${r.name}** — ${fmt(r.amount)}/${r.frequency}`).join('\n')+`\n\n**${''}: ${fmt(mo2)}** (${fmt(mo2*12)}/${''})`;
+    return`**Recurring Expenses 🔁**\n\n`+DB.recurring.map(r=>`↺ **${r.name}** — ${fmt(r.amount)}/${r.frequency}`).join('\n')+`\n\n**Monthly total: ${fmt(mo2)}** (${fmt(mo2*12)}/yr)`;
   }
-
-  // Income
-  if(hit(q,['income','earn','salary','revenue','received','आय','வருமானம்','دخل','收入','収入','ingreso','revenu'])){
-    const iAll=all.filter(t=>t.type==='income');
-    if(!iAll.length) return '';
-    const totI=iAll.reduce((s,t)=>s+t.amount,0);
-    const byCat={};iAll.forEach(t=>{byCat[t.category]=(byCat[t.category]||0)+t.amount});
-    const lines=Object.entries(byCat).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([id,a])=>`💵 **${catOf(id).name}**: ${fmt(a)}`).join('\n');
-    return`**${''}**\n\n${''}: **${fmt(totI)}**\n${''}: **${fmt(inc)}**\n\n${lines}`;
+  if(hit(q,['income','earn','salary','revenue'])){
+    const iAll=all.filter(t=>t.type==='income'); if(!iAll.length)return"No income recorded! Click **＋ Add** → Income tab.";
+    const totI=iAll.reduce((s,t)=>s+t.amount,0); const byCat={};iAll.forEach(t=>{byCat[t.category]=(byCat[t.category]||0)+t.amount});
+    return`**Income Breakdown 💰**\n\nAll-time: **${fmt(totI)}**\nThis month: **${fmt(inc)}**\n\n`+Object.entries(byCat).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([id,a])=>`💵 **${catOf(id).name}**: ${fmt(a)}`).join('\n');
   }
-
-  // Recent transactions
-  if(hit(q,['transaction','recent','last','history','लेन-देन','பரிவர்','معاملة','交易','取引','transaccion','transaction'])){
-    const r=all.slice(0,5);
-    if(!r.length) return '';
-    return`**${''}**\n\n`+r.map(t=>`${t.type==='income'?'💚':'🔴'} **${t.description}** — ${fmt(t.amount)} (${t.date})`).join('\n')+'\n\n'+''.replace('{n}',all.length);
+  if(hit(q,['transaction','recent','last','history'])){
+    const r=all.slice(0,5); if(!r.length)return"No transactions yet! Click **＋ Add**.";
+    return`**Recent Transactions 💳**\n\n`+r.map(t=>`${t.type==='income'?'💚':'🔴'} **${t.description}** — ${fmt(t.amount)} (${t.date})`).join('\n')+`\n\nGo to **Transactions** to see all ${all.length} with filters!`;
   }
-
-  // Top spending
-  if(hit(q,['top','most','spend','highest','biggest','शीर्ष','அதிக','أعلى','最高','最大','mayor','plus'])){
-    if(!top.length) return '';
-    const lines=top.slice(0,5).map(([id,a],i)=>`${['🥇','🥈','🥉','4️⃣','5️⃣'][i]} **${catOf(id).name}** — ${fmt(a)}`).join('\n');
-    return`**${''.replace('{mo}',mo)}**\n\n${lines}\n\n${''}`;
+  if(hit(q,['top','most','spend','highest','biggest'])){
+    if(!top.length)return"No expenses this month. Add some transactions!";
+    return`**Top Spending 📊 — ${mo}**\n\n`+top.slice(0,5).map(([id,a],i)=>`${['🥇','🥈','🥉','4️⃣','5️⃣'][i]} **${catOf(id).name}** — ${fmt(a)}`).join('\n')+'\n\n💡 Tip: Set a budget for your top category!';
   }
-
-  // Tip
-  if(hit(q,['tip','advice','suggest','save more','help me save','सुझाव','குறிப்பு','نصيحة','建议','ヒント','consejo','conseil'])){
-    return ''+'\n\n'+'';
+  if(hit(q,['tip','advice','suggest','save more'])){
+    return BOT_TIPS[Math.floor(Math.random()*BOT_TIPS.length)];
   }
-
-  // All-time
-  if(hit(q,['total','all time','lifetime','overall','सर्वकालीन','مجموع','总计','通算'])){
-    if(!all.length) return '';
+  if(hit(q,['total','all time','lifetime','overall'])){
+    if(!all.length)return"No data yet!";
     const tI=all.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
     const tE=all.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
-    return`**${''}**\n\n${''}: **${fmt(tI)}**\n${''}: **${fmt(tE)}**\n${''}: **${fmt(tI-tE)}**\n📝 ${''}: **${all.length}**`;
+    return`**All-Time Summary 📊**\n\n💰 Total Income: **${fmt(tI)}**\n💸 Total Expenses: **${fmt(tE)}**\n📈 Net Saved: **${fmt(tI-tE)}**\n📝 Transactions: **${all.length}**`;
   }
-
-  // Help
-  if(hit(q,['help','what can','features','pages','guide','मदद','உதவி','مساعدة','帮助','ヘルプ','ayuda','aide'])){
-    return`**${''}**\n\n📊 ${''.replace('{mo}','')}\n🏆 ${''}\n🎯 ${''.split('!')[0]}\n🔁 ${''}\n💵 ${''}\n💡 ${''}\n\n${''.split('\n')[0]}`;
+  if(hit(q,['help','what can','features'])){
+    return`**I'm Penny 🤖 — I can help with:**\n\n📊 Monthly balance & overview\n🏆 Savings goals progress\n🎯 Budget status\n🔁 Recurring expenses\n💵 Income breakdown\n📋 Recent transactions\n💡 Money saving tips\n\nJust ask! 😊`;
   }
-
-  return '';
+  return"I didn't catch that! Try asking about:\n\n• **Balance** — monthly overview\n• **Goals** — savings progress\n• **Budget** — spending limits\n• **Tip** — money saving advice 😊";
 }
 
-function hit(q,kw){return kw.some(k=>q.includes(k))}
-
-
-}
-
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
 //  INIT
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
 load();
 applyTheme();
 syncThemePicker();
@@ -1397,6 +1365,7 @@ G('cursel').value=DB.currency;
 badge();
 renderDash();
 
+function applyTheme(){ document.body.className=DB.theme||''; }
 </script>
 </body>
 </html>
